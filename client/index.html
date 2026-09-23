@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="기상청 공공데이터 기반 저용량 한국 날씨 PWA">
+  <meta name="theme-color" content="#1976D2" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#121212" media="(prefers-color-scheme: dark)">
+  
+  <title>날씨 - 기상청 단기예보</title>
+  
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="icon" href="/assets/favicon.ico" sizes="any">
+  <link rel="apple-touch-icon" href="/assets/icon-192.png">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <a href="#main-content" class="skip-link sr-only sr-only-focusable">본문으로 바로가기</a>
+
+  <div class="app-container">
+    <!-- Header Landmark -->
+    <header class="app-header" role="banner">
+      <div class="header-top">
+        <button id="btn-location-picker" class="location-btn" aria-haspopup="dialog" aria-expanded="false" aria-label="지역 선택">
+          <span class="location-icon" aria-hidden="true">📍</span>
+          <span id="current-location-label" class="location-label">지역을 선택하세요</span>
+          <span class="dropdown-arrow" aria-hidden="true">▾</span>
+        </button>
+        <button id="btn-refresh" class="icon-btn refresh-btn" aria-label="날씨 새로고침">
+          <span class="refresh-icon" aria-hidden="true">↻</span>
+          <span class="btn-text">새로고침</span>
+        </button>
+      </div>
+      <div class="header-status" aria-live="polite">
+        <span id="status-badge" class="badge badge-normal">준비 중</span>
+        <span id="update-time-text" class="update-time">업데이트 대기</span>
+      </div>
+    </header>
+
+    <!-- Emergency Warning Banner -->
+    <aside id="warning-container" class="warning-container hidden" role="alert" aria-live="assertive">
+      <div class="warning-banner">
+        <span class="warning-icon" aria-hidden="true">⚠️</span>
+        <div class="warning-content">
+          <strong id="warning-title" class="warning-title">기상특보</strong>
+          <p id="warning-message" class="warning-message cjk-text"></p>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Landmark -->
+    <main id="main-content" class="app-main" role="main">
+      <!-- Current Weather Hero Section -->
+      <section id="hero-section" class="card hero-card" aria-labelledby="hero-heading">
+        <h2 id="hero-heading" class="sr-only">현재 날씨 요약</h2>
+        <div class="hero-primary">
+          <div class="hero-temp-block">
+            <span id="current-temp" class="temp-display">--</span>
+            <span class="temp-unit">°</span>
+          </div>
+          <div class="hero-condition-block">
+            <span id="current-weather-glyph" class="weather-glyph" aria-hidden="true">☀️</span>
+            <span id="current-sky-text" class="sky-text">--</span>
+          </div>
+        </div>
+        <div class="hero-secondary">
+          <span class="apparent-temp-label">체감온도</span>
+          <span id="apparent-temp" class="apparent-temp-val">--°</span>
+        </div>
+        <hr class="card-divider" aria-hidden="true">
+        <dl class="weather-metrics-list">
+          <div class="metric-item">
+            <dt>습도</dt>
+            <dd id="metric-humidity">--%</dd>
+          </div>
+          <div class="metric-item">
+            <dt>풍속</dt>
+            <dd id="metric-wind">-- m/s</dd>
+          </div>
+          <div class="metric-item">
+            <dt>강수량</dt>
+            <dd id="metric-rain">-- mm</dd>
+          </div>
+        </dl>
+      </section>
+
+      <!-- Hourly Forecast Section (24 Hours horizontal scroll) -->
+      <section id="hourly-section" class="card hourly-card" aria-labelledby="hourly-heading">
+        <h2 id="hourly-heading" class="section-title">시간별 예보 (24시간)</h2>
+        <div id="hourly-track" class="hourly-track" role="region" aria-label="시간별 날씨 목록" tabindex="0">
+          <!-- Dynamically populated hourly items -->
+          <div class="empty-placeholder">시간별 예보를 불러오는 중입니다...</div>
+        </div>
+      </section>
+
+      <!-- Daily Forecast Section (3 Days vertical list) -->
+      <section id="daily-section" class="card daily-card" aria-labelledby="daily-heading">
+        <h2 id="daily-heading" class="section-title">주간 예보 (3일)</h2>
+        <ul id="daily-list" class="daily-list">
+          <!-- Dynamically populated daily items -->
+          <li class="empty-placeholder">주간 예보를 불러오는 중입니다...</li>
+        </ul>
+      </section>
+    </main>
+
+    <!-- Location Modal / Dialog -->
+    <dialog id="location-dialog" class="location-dialog" aria-labelledby="dialog-title">
+      <div class="dialog-content">
+        <div class="dialog-header">
+          <h2 id="dialog-title" class="dialog-title">지역 선택</h2>
+          <button id="btn-dialog-close" class="dialog-close-btn" aria-label="닫기">✕</button>
+        </div>
+        
+        <div class="dialog-body">
+          <button id="btn-geolocation" class="btn btn-secondary geo-btn">
+            <span aria-hidden="true">🎯</span> 현재 위치로 찾기 (일회성)
+          </button>
+          
+          <div class="dialog-separator" aria-hidden="true">또는 행정구역 선택</div>
+
+          <form id="location-select-form" class="location-select-form">
+            <div class="select-group">
+              <label for="select-sido" class="select-label">시/도</label>
+              <select id="select-sido" class="custom-select" required>
+                <option value="">시/도 선택</option>
+              </select>
+            </div>
+
+            <div class="select-group">
+              <label for="select-sigungu" class="select-label">시/군/구</label>
+              <select id="select-sigungu" class="custom-select" disabled required>
+                <option value="">시/군/구 선택</option>
+              </select>
+            </div>
+
+            <div class="select-group">
+              <label for="select-dong" class="select-label">읍/면/동</label>
+              <select id="select-dong" class="custom-select" disabled>
+                <option value="">읍/면/동 선택 (선택 사항)</option>
+              </select>
+            </div>
+
+            <div class="dialog-actions">
+              <button type="submit" id="btn-location-confirm" class="btn btn-primary" disabled>선택 완료</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </dialog>
+
+    <!-- Footer Landmark -->
+    <footer class="app-footer" role="contentinfo">
+      <div class="footer-meta">
+        <p class="attribution">출처: 기상청 (공공데이터포털)</p>
+        <p class="privacy-note">개인정보 및 위치를 저장하지 않는 저용량 오픈소스 PWA입니다.</p>
+      </div>
+      <div class="footer-actions">
+        <button id="btn-reset-data" class="btn-text-link">저장된 위치 및 데이터 초기화</button>
+      </div>
+    </footer>
+  </div>
+
+  <script type="module" src="/app.js"></script>
+</body>
+</html>
