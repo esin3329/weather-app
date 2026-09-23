@@ -1,0 +1,23 @@
+{
+  "name": "weather-pwa",
+  "version": "1.0.0",
+  "description": "Low-memory installable Korean weather Progressive Web App",
+  "type": "module",
+  "scripts": {
+    "start": "node proxy/server.js",
+    "dev": "node --watch proxy/server.js",
+    "test": "node --test test/unit/*.test.js",
+    "test:unit": "node --test test/unit/*.test.js",
+    "test:e2e": "node --test test/e2e/*.test.js",
+    "scan:secrets": "bash scripts/scan-secrets.sh client/"
+  },
+  "keywords": [
+    "pwa",
+    "kma",
+    "weather",
+    "low-memory",
+    "korea"
+  ],
+  "author": "jeon_huijun",
+  "license": "Apache-2.0"
+}
