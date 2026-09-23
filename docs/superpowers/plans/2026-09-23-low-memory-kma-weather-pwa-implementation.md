@@ -171,4 +171,4 @@ weather/
 - [x] Visual design system and tokens defined (`DESIGN.md`).
 - [x] Official KMA contracts and threat reviews verified (`.omo/evidence/`).
 - [x] Git repository initialized and design baseline committed to `main`.
-- [ ] User authorization to begin Phase 1 implementation.
+- [x] User authorization to begin Phase 1 implementation (Authorized by user).

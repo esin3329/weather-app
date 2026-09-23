@@ -72,8 +72,23 @@ weather/
 
 ## COMMANDS
 
-No build, test, lint, or run command exists yet. Record exact commands here only after an
-approved implementation plan creates the corresponding toolchain.
+```bash
+# Start proxy & static PWA server (defaults to port 8080)
+npm start
+
+# Development mode with hot auto-reload
+npm run dev
+
+# Run fast native unit test suite
+npm test
+npm run test:unit
+
+# Run full acceptance E2E and performance budget tests
+npm run test:e2e
+
+# Run client secret exclusion security scan
+npm run scan:secrets
+```
 
 ## NOTES
 
