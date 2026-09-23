@@ -1,28 +1,32 @@
 # PROJECT KNOWLEDGE BASE
 
-**Generated:** 2026-08-10
-**Commit:** N/A — workspace is not a Git repository
-**Branch:** N/A
+**Generated:** 2026-09-23
+**Commit:** 08ddec6 — workspace is an initialized Git repository
+**Branch:** main
 
 ## OVERVIEW
 
 Greenfield design workspace for a low-memory, installable Korean weather PWA.
 The planned product uses official Korea Meteorological Administration data.
-The current user-authorized scope is design and orchestration artifacts only.
+Design phase is completed and approved; pre-implementation setup is complete.
 
 ## CURRENT STATE
 
 ```text
 weather/
-├── .codegraph -> external generated index metadata
-└── AGENTS.md   # project decisions and workspace guidance
+├── .gitignore
+├── AGENTS.md           # project decisions and workspace guidance
+├── DESIGN.md           # visual design system and accessibility contract
+├── docs/
+│   └── superpowers/
+│       ├── specs/      # product and architecture specification
+│       └── plans/      # implementation plan
+└── .omo/               # orchestration state and evidence reviews
 ```
 
-- No product source, package manifest, build configuration, tests, or CI exists.
-- No Git repository exists in this directory.
-- CodeGraph is present but contains no source symbols.
-- No pre-existing conventions or instruction files need preservation.
-- No nested directory currently warrants its own `AGENTS.md`.
+- Git repository initialized on branch `main`.
+- Design specification, visual design system, and component evidence reviews completed and committed.
+- Detailed implementation plan prepared at `docs/superpowers/plans/2026-09-23-low-memory-kma-weather-pwa-implementation.md`.
 
 ## CONFIRMED PRODUCT DECISIONS
 
