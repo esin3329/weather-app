@@ -28,3 +28,6 @@ Thumbs.db
 
 # Machine-generated code index metadata
 .codegraph
+
+# Git worktrees
+.worktrees/
