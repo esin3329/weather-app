@@ -1,0 +1,116 @@
+<!--
+	----------------------------------------------------------------------------
+	NCDC Project : 기상기후데이터허브 구축 및 개선
+	----------------------------------------------------------------------------
+	Copyright (c) 2022 기상청, LG CNS 컨소시엄 All rights reserved.
+-->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="_csrf" content="204e93e2-451b-4c1d-a909-66845d98f990"/>
+  <meta name="_csrf_header" content="X-CSRF-TOKEN"/>
+  <title>기상청 API허브</title>
+  <link type="text/css" rel="stylesheet" href="/static/css/awp/import.css" media="all" />
+  <link type="text/css" rel="stylesheet" href="/static/js/common/jquery-timepicker-addon/jquery-ui-timepicker-addon.css" media="all"/>
+  <link type="text/css" rel="stylesheet" href="/static/js/common/jquery-ui-1.13.2/jquery-ui.min.css" media="all"/>
+  <script type="text/javascript" src="/static/js/awp/jquery-latest.min.js"></script>
+  <script type="text/javascript" src="/static/js/awp/jquery-3.6.1.min.js"></script>
+  <script type="text/javascript" src="/static/js/awp/common.ui.js"></script>
+  <script type="text/javascript" src="/static/js/awp/common.awp.js"></script>
+  <script type="text/javascript" src="/static/js/common/jquery-ui-1.13.2/jquery-ui.min.js"></script>
+  <script type="text/javascript" src="/static/js/common/jquery-timepicker-addon/jquery-ui-timepicker-addon.js"></script>
+  <script>
+    $(function() {
+      if($('.wrapper', top.document).find('#confirmPopup').length == 0){
+        $('.wrapper', top.document).append($(html.confirm));
+      }
+      if($('.wrapper', top.document).find('#alertPopup').length == 0){
+        $('.wrapper', top.document).append($(html.alert));
+      }
+    });
+  </script>
+</head>
+<body>
+<div class="wrapper">
+    <div class="container">
+            <!-- Contents -->
+            <div class="contents" > 
+                <div class="title-wrap"><div class="title"><h2>이용안내</h2></div></div> 
+                <div class="tab-wrap">
+                    <ul>
+                        <li onclick="location.href='/apiInfo.do';" style="cursor:pointer">API</li>
+                        <li onclick="location.href='/policy.do';" style="cursor:pointer">약관</li>
+                        <li onclick="location.href='/noticeList.do';" style="cursor:pointer" class="on">공지사항</li>
+                        <li onclick="location.href='/faqList.do';" style="cursor:pointer">FAQ</li>
+<!--                        <li onclick="location.href='/qnaList.do';" style="cursor:pointer">QNA</li>-->
+                    </ul>
+                </div>
+                <!-- 공지사항 테이블  -->
+                <div class="Tbl-wrap mt40">
+                    <table class="Tbl notice" summary="공지사항">
+                        <colgroup><col width="10%"><col width="90%"></colgroup>
+                        <thead>
+                            <tr>
+                                <th colspan="2" class="ntit">[공지] 격자데이터 위경도 정보 API 서비스 알림(2.20.)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td colspan="2" class="txt-right" ><span class="not-date"><strong>등록일</strong></span>
+                                    <span class="not-date">2025-02-20</span></td>
+                            </tr>
+                            <tr>
+                                <td colspan="2" class="notice-cont" style="white-space: pre-line">격자데이터에 대한 위경도 정보를 조회할 수 있는 API 서비스를 추가하여 안내드립니다.
+
+ ○ 서비스 일시: 2025. 2. 20.(목)
+ ○ 서비스 내용: 격자데이터에 대한 위경도 정보를 조회 및 다운로드할 수 있는 API 제공
+ ○ 서비스 대상: 수치예보모델, 위성, 레이더, 동네예보 격자데이터
+    - (수치예보모델) UM-전구, UM-지역, UM-국지, KIM-전구, KIM-지역(12km / 3km)
+    - (위성) 한반도 영역, 동아시아 영역, 동아시아 확장 영역, 태풍영역
+    - (레이더) 500m 합성자료, 누적 강수, 3차원 합성자료
+    - (동네예보) 단기예보, 초단기예보, 실황
+ ○ 서비스 위치 및 API 프로그램명
+    - (수치예보모델) 수치모델 - 수치예보모델 - 수치예보모델 격자데이터 위경도 조회
+      (조회: nwp_latlon_api/ 다운로드: nwp_latlon_file_down.php)
+    - (위성) 위성 - 천리안 2A호 - 천리안 2A호 격자데이터 위경도 조회
+      (조회: gk2a_latlon_api/ 다운로드: gk2a_latlon_file_down.php)
+    - (레이더) 레이더 - 레이더 강수량(HSR) - 레이더 합성장 격자데이터 위경도 조회
+      (조회: rdr_latlon_api/ 다운로드: rdr_latlon_file_down.php)
+    - (동네예보) 예특보 - 단기예보 - 동네예보 격자데이터 위경도 조회
+      (조회: dfs_latlon_api/ 다운로드: dfs_latlon_file_down.php)</td>
+                            </tr>
+                            
+                        </tbody>
+                    </table>
+                </div>
+                <div class="btn-wrap"><button class="btn btn_01" onclick="toList()">목록</button></div>
+                <!--//  공지사항 테이블  -->
+                
+            </div>
+            <!-- // Contents -->
+            <!-- Footer -->
+            <footer>
+                <div class="footer-wrap">
+                    <p class="footer-logo">Copyright(c) KMA. All Rights Reserved. 연락처 : kmadatahub@korea.kr
+                        <a class="ml20" href="/personalInfo.do" style="color: black;"><b>개인정보 처리방침</b></a>
+                        <a class="ml20" href="/notice.do?seqNotice=57" style="color: black;"><b style="margin-left: 300px;">출처표기안내</b></a></p>
+                    <a href="http://www.kogl.or.kr/info/license.do" target="_blank"><img src="static/images/awp/mark_copy.png"
+                            alt="공공누리 공공저작물 자유이용허 - 출처표시"></a>
+                </div>
+            </footer>
+            <!--// Footer -->
+    </div>
+</div>
+<script>
+    function toList() {
+        fnConfirm('목록이동','목록으로 이동하시겠습니까?',function(){
+            location.href="/noticeList.do";
+        });
+
+    }
+
+</script>
+</body>
+</html>

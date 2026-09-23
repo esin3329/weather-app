@@ -1,0 +1,22 @@
+{
+  "schema_version": 2,
+  "active_work_id": "weather-design-only",
+  "plan_review_sha256": "21c2433b67329f585374e922f6d4659e75fef58c8c593d953486d88d9ae467d3",
+  "plan_contract_sha256": "21c2433b67329f585374e922f6d4659e75fef58c8c593d953486d88d9ae467d3",
+  "works": {
+    "weather-design-only": {
+      "work_id": "weather-design-only",
+      "plan_review_sha256": "21c2433b67329f585374e922f6d4659e75fef58c8c593d953486d88d9ae467d3",
+      "plan_contract_sha256": "21c2433b67329f585374e922f6d4659e75fef58c8c593d953486d88d9ae467d3",
+      "active_plan": ".omo/plans/low-memory-kma-weather-pwa-design.md",
+      "plan_name": "low-memory-kma-weather-pwa-design",
+      "session_ids": [
+        "codex:design-only-bootstrap",
+        "codex:design-only-root"
+      ],
+      "all_delegate_session_map": {},
+      "status": "completed",
+      "worktree_path": null
+    }
+  }
+}

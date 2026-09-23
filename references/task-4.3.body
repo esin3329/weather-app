@@ -1,0 +1,3503 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="_csrf" content="0939fa92-3f67-402b-ac85-1c051037f2e0"/>
+  <meta name="_csrf_header" content="X-CSRF-TOKEN"/>
+  <title>기상청 API허브</title>
+  <link type="text/css" rel="stylesheet" href="/static/css/awp/import.css" media="all" />
+  <link type="text/css" rel="stylesheet" href="/static/js/common/jquery-timepicker-addon/jquery-ui-timepicker-addon.css" media="all"/>
+  <link type="text/css" rel="stylesheet" href="/static/js/common/jquery-ui-1.13.2/jquery-ui.min.css" media="all"/>
+  <script type="text/javascript" src="/static/js/awp/jquery-latest.min.js"></script>
+  <script type="text/javascript" src="/static/js/awp/jquery-3.6.1.min.js"></script>
+  <script type="text/javascript" src="/static/js/awp/common.ui.js"></script>
+  <script type="text/javascript" src="/static/js/awp/common.awp.js"></script>
+  <script type="text/javascript" src="/static/js/common/jquery-ui-1.13.2/jquery-ui.min.js"></script>
+  <script type="text/javascript" src="/static/js/common/jquery-timepicker-addon/jquery-ui-timepicker-addon.js"></script>
+  <script>
+    $(function() {
+      if($('.wrapper', top.document).find('#confirmPopup').length == 0){
+        $('.wrapper', top.document).append($(html.confirm));
+      }
+      if($('.wrapper', top.document).find('#alertPopup').length == 0){
+        $('.wrapper', top.document).append($(html.alert));
+      }
+    });
+  </script>
+</head>
+<style>
+h3{
+	scroll-margin-top: 50px;
+}
+</style>
+<body>
+<script>
+    /*<![CDATA[*/
+    const apiList = [{"seqApi":286,"nmApi":"\uB2E8\uAE30\uC608\uBCF4","dscApi":null,"dvApiGrphc":null},{"seqApi":287,"nmApi":"\uC911\uAE30\uC608\uBCF4","dscApi":null,"dvApiGrphc":null},{"seqApi":288,"nmApi":"\uAE30\uC0C1\uD2B9\uBCF4","dscApi":null,"dvApiGrphc":null},{"seqApi":289,"nmApi":"\uC601\uD5A5\uC608\uBCF4","dscApi":null,"dvApiGrphc":null},{"seqApi":321,"nmApi":"\uC608\u00B7\uD2B9\uBCF4 \uAD6C\uC5ED\uC815\uBCF4","dscApi":null,"dvApiGrphc":null}];
+    /*]]>*/
+
+    const onClickGenerateUrl = (seqApi) => {
+        var popupWidth = 800;
+        var popupHeight = 450;
+
+        var popupX = window.screenX + (window.screen.width / 4 ) - (popupWidth / 2);
+        var popupY = window.screenY + (window.screen.height / 2 ) - (popupHeight / 2);
+
+        window.open(`/generateUrl.do?seqApi=${seqApi}`, '',
+            'status=no, height=' + popupHeight + ', width=' + popupWidth + ', left=' + popupX
+            + ', top='
+            + popupY);
+    }
+
+    const openSampleCode = (seqApi) => {
+        var popupWidth = 900;
+        var popupHeight = 600;
+
+        var popupX = window.screenX + (window.screen.width / 4 ) - (popupWidth / 2);
+        var popupY = window.screenY + (window.screen.height / 2 ) - (popupHeight / 2);
+
+        window.open(`/sampleCode.do?seqApi=${seqApi}`, '',
+            'status=no, height=' + popupHeight + ', width=' + popupWidth + ', left=' + popupX
+            + ', top='
+            + popupY);
+    }
+
+    const openAPIUrl = (seqApi, seqApiSub) => {
+        var popupWidth = 1200;
+        var popupHeight = 500;
+
+        var popupX = window.screenX + (window.screen.width / 4 ) - (popupWidth / 2);
+        var popupY = window.screenY + (window.screen.height / 2 ) - (popupHeight / 2);
+
+        window.open(`/generateAPIUrl.do?seqApi=${seqApi}&seqApiSub=${seqApiSub}`, '',
+            'status=no, height=' + popupHeight + ', width=' + popupWidth + ', left=' + popupX
+            + ', top='
+            + popupY);
+    }
+
+    const openAPIUse = (seqApi) => {
+        var popupWidth = 800;
+        var popupHeight = 600;
+
+        var popupX = window.screenX + (window.screen.width / 2 ) - (popupWidth / 2);
+        var popupY = window.screenY + (window.screen.height /2 ) - (popupHeight / 2);
+
+        window.open(`/APIUse.do?seqApi=${seqApi}`, '',
+            'status=no, height=' + popupHeight + ', width=' + popupWidth + ', left=' + popupX
+            + ', top='
+            + popupY);
+    }
+
+    const onClickLoginBtn = () => {
+        const loginBtn = $('body', window.parent.document).find('.btn-login');
+        if (loginBtn.length > 0) {
+            loginBtn[0].click()
+        }
+    }
+
+    const copySampleUrl = event => {
+        const urlElement = $(event.target).parent().prev().eq(0);
+        if(urlElement) {
+            const copyText = urlElement.attr('href');
+            const $textarea = document.createElement("textarea");
+
+            // body 요소에 존재해야 복사가 진행됨
+            document.body.appendChild($textarea);
+
+            // 복사할 특정 텍스트를 임시의 textarea에 넣어주고 모두 셀렉션 상태
+            $textarea.value = copyText;
+            $textarea.select();
+
+            // 복사 후 textarea 지우기
+            document.execCommand('copy');
+            document.body.removeChild($textarea);
+            fnAlert('URL이 복사되었습니다.')
+        }
+    }
+    
+    $(document).ready(() => {
+
+	    var apiMovChk = $('input[name=apiMovChk]').val();
+	    
+	    if(apiMovChk == "Y"){
+		    
+		    //h3 태그를 찾을 이름
+		    var targetHeading = $('input[name=apiMov]').val();
+		    // 모든 h3태그 가져오기
+		    var headings = document.getElementsByTagName('h3');
+	    
+	    	//alert(targetHeading);
+		    
+		    //해당 이름과 일치하는 h3태그 찾기
+		    var targetHeadingElement;
+		    
+		    for(var i=0; i < headings.length; i++){
+		    	if(headings[i].innerText.includes(targetHeading)){
+		    		targetHeadingElement = headings[i];
+		    		break;
+		    	}    	
+		    }
+		    
+		    if(targetHeadingElement){
+		    	targetHeadingElement.scrollIntoView({ behavior: 'auto',block:'start',inline:'center'});    	
+		    }
+		    
+
+		    
+		    //li 태그를 찾을 이름
+		    var targetHeadingLi = "menuLi" + $('input[name=seqApi]').val();
+		    // 모든 부모의 li태그 가져오기
+		    var headingsLi = parent.document.getElementsByTagName('li');
+	    
+	    	//alert(targetHeading);
+		    
+		    //해당 이름과 일치하는 h3태그 찾기
+		    var targetHeadingElementLi;
+		    
+		    for(var i=0; i < headingsLi.length; i++){
+		    	if(headingsLi[i].id == targetHeadingLi){
+		    		targetHeadingElementLi = headingsLi[i];
+		    		break;
+		    	}    	
+		    }
+		    
+		    if(targetHeadingElementLi){
+		    	targetHeadingElementLi.classList.toggle('on');    	
+		    }
+	    }
+    });
+    //
+    // 접히는 코드 삭제
+    // $(document).ready(() => {
+    //     $('.collapsible').css({
+    //         cursor: 'pointer',
+    //     })
+    //     $('.collapsible').next().hide();
+    //     $('.collapsible').hover(function() {
+    //         $(this).css('color', '#ccc');
+    //     },function() {
+    //         $(this).css('color', '#222');
+    //     })
+    //     $('.collapsible').click((event) => {
+    //         if($(event.target).next().is(':visible')) {
+    //             // collapsible
+    //             $(event.target).text($(event.target).text().replaceAll('>', '<'))
+    //             $(event.target).next().hide()
+    //         } else {
+    //             // expand
+    //             $(event.target).text($(event.target).text().replaceAll('<', '>'))
+    //             $(event.target).next().show()
+    //         }
+    //     })
+    // })
+</script>
+<div class="wrapper">
+    <div class="container">
+        <div class="contents" >
+            <div class="title-wrap">
+                <div class="title">
+                    <h2>예특보</h2>
+                </div>
+            </div>
+            <input type ="hidden" id="seqApi" name="seqApi" value="10"/>
+            <input type ="hidden" id="apiMov" name="apiMov" value="4. 동네예보(초단기실황·초단기예보·단기예보) 조회"/>
+            <input type ="hidden" id="apiMovChk" name="apiMovChk"  value="Y"/>
+            
+            <p class="tit-cont01">초단기, 단기, 중기예보의 기온, 바람, 강수량 등 데이터를 제공하며, 폭염, 한파, 호우 등 10종의 기상특보(주의보, 경보) 데이터를 제공합니다.</p>
+            <div class="tab_list type">
+                <ul>
+                    
+                            <li onclick="location.href=&#39;/apiList.do?seqApi=10&amp;seqApiSub=286&#39;" class="active">
+                                <a>단기예보</a>
+                            </li>
+                    
+                            <li onclick="location.href=&#39;/apiList.do?seqApi=10&amp;seqApiSub=287&#39;">
+                                <a>중기예보</a>
+                            </li>
+                    
+                            <li onclick="location.href=&#39;/apiList.do?seqApi=10&amp;seqApiSub=288&#39;">
+                                <a>기상특보</a>
+                            </li>
+                    
+                            <li onclick="location.href=&#39;/apiList.do?seqApi=10&amp;seqApiSub=289&#39;">
+                                <a>영향예보</a>
+                            </li>
+                    
+                            <li onclick="location.href=&#39;/apiList.do?seqApi=10&amp;seqApiSub=321&#39;">
+                                <a>예·특보 구역정보</a>
+                            </li>
+                    
+                </ul>
+            </div>
+            <!-- API desc -->
+            
+                <div class="Tbl-wrap mt40">
+                    <table class="Tbl">
+                        <caption>api 상세</caption>
+                        <colgroup><col width="10%"><col width="90%"></colgroup>
+                        <tbody>
+                        
+                            <tr>
+                                <th>개요</th>
+                                <td><p class="txt">단기예보란 예보기간과 구역을 시 · 공간적으로 세분화하여 발표하는 예보입니다. 지역별, 시간별 차이로 인한 수요자의 불편을 최소화하기 위해 전국을 5km * 5km 간격의 격자(동서 149(745km) × 남북 253(1.265km)), 총 37,697개로 나누어, 3시간 마다 읍, 면, 동 단위의 행정구역 중심으로 상세한 날씨를 제공합니다. </p></td>
+                            </tr>
+                        
+                            <tr>
+                                <th>요 소</th>
+                                <td><p class="txt">3시간 기온, 낮 최고기온, 아침 최저기온, 풍향, 풍속, 동서바람성분, 남북바람성분,  하늘상태, 강수형태, 강수확률, 6시간 강수량, 6시간 신적설, 습도, 파고</p></td>
+                            </tr>
+                        
+                            <tr>
+                                <th>지 점</th>
+                                <td><p class="txt">동사무소를 중심으로 하는 행정구역</p></td>
+                            </tr>
+                        
+                            <tr>
+                                <th>보유기간</th>
+                                <td><p class="txt">2008년 10월 30일 17:00KST(시행일 기준) ~ 현재</p></td>
+                            </tr>
+                        
+                            <tr>
+                                <th>생산주기</th>
+                                <td><p class="txt">2시부터 3시간 간격(일 8회)</p></td>
+                            </tr>
+                        
+                        </tbody>
+                    </table>
+                </div>
+            
+            <div class="btn-wrap">
+                <button class="btn btn_00" onclick="openAPIUrl(10, 286)">URL 발행</button>
+                <button class="btn btn_00" onclick="openSampleCode(10)">API 샘플코드</button>
+            </div>
+            <!-- API sub list -->
+            
+                <h3>1. 단기예보자료(2001년 2월 이후) 조회</h3>
+                <p class="tit-cont02"></p>
+                <!-- API sub list apiDescList-->
+                
+                <!-- API sub dscApiList end -->
+                <!-- API sub AttachFiles -->
+                
+                <!-- API sub AttachFiles end -->
+                <!-- API sub sampleUrls -->
+                
+                <!-- API sub sampleUrls end -->
+                <!-- API sub reqParams -->
+                
+                <!-- API sub reqParams end -->
+                <!-- API sub resParams -->
+                
+
+
+                <!-- API sub list -->
+                
+                 <!--   <h3 th:utext="${apiChildrenData.getApiNm()}">K10. 자동기상관측장비(AWS) 매분자료</h3>
+                    <p class="tit-cont02" th:utext="${apiChildrenData.getApiDesc()}">자동기상관측장비(AWS, Automatic Weather System)는 지상의 기온, 강수, 풍향·속 등을 측정하는 관측장비로 전국 약 600여 지점에 설치되어 있습니다.<br/>
+                        자료 생산주기는 분, 시간, 일, 월,연이며,1997년 이후 자료를 보유(지점마다 상이함) 중입니다.</p> -->
+                    <!-- API sub list apiDescList-->
+                    
+
+
+                    <!-- API sub dscApiList end -->
+                    <!-- API sub AttachFiles -->
+                    
+                    <!-- API sub AttachFiles end -->
+                    <!-- API sub sampleUrls -->
+                    
+                       
+                        
+                    		<!-- 2024.02.06 주경돈 주무관요청 - api표현방식 수정 -->
+							
+							
+							
+																
+								
+								<h4 class="mt40 flex-beetwen">1.1 단기 예보구역
+							
+							
+	                            
+	                                
+	                                    <span style="margin-left:auto;"><button class="btn btn_00" onClick="onClickLoginBtn()">API 활용신청</button></span>
+	                                
+	                                
+	                            
+	<!--                            <span><button class="btn03" th:if="${apiChildrenData.seqRoute == 5}" th:onclick="onClickGenerateUrl(750)">URL 발행</button></span>-->
+	                        </h4>
+	                            <p class="flex-beetwen" style="min-height: 50px;">
+	                                <a href="https://apihub.kma.go.kr/api/typ01/url/fct_shrt_reg.php?tmfc=0&amp;authKey=인증키입력" class="url-link" target="_blank">
+	                                    https://apihub.kma.go.kr/api/typ01/url/fct_shrt_reg.php?tmfc=0&authKey={인증키입력}
+	                                </a><span><button type="button" class="btn btn_01" style="width: 90px;" onclick="copySampleUrl(event)">URL복사</button></span>
+	                            </p>
+                        
+                    
+                    <!-- API sub sampleUrls end -->
+                    <!-- API sub reqParams -->
+                    
+                        <h5 class="mt40">요청인자</h4>
+                        <div class="Tbl-wrap mt40">
+                            <table class="Tbl">
+                                <caption>데이터 기본 정보</caption>
+                                <colgroup>
+                                    <col width="15%">
+                                    <col width="15%">
+                                    <col width="70%">
+                                </colgroup>
+                                <thead>
+                                <tr>
+                                    <th>인자명</th>
+                                    <th>의미</th>
+                                    <th>설명</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr>
+                                    <td><p class="txt">tmfc</p></td>
+                                    <td><p class="txt">발표시간</p></td>
+                                    <td><p class="txt">예보구역조회에서 사용(기준시각의미, 년월일시(KST))<br />없으면, 전체 / 0이면, 가장 최근</p></td>
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">authKey</p></td>
+                                    <td><p class="txt">인증키</p></td>
+                                    <td><p class="txt">발급된 API 인증키</p></td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    
+                    <!-- API sub reqParams end -->
+                    <!-- API sub resParams -->
+                    
+                        <h5 class="mt40">출력결과</h4>
+                        <div class="Tbl-wrap">
+                            <table class="Tbl">
+                                <caption>출력결과</caption>
+                                <colgroup>
+                                    <col width="15%">
+                                    <col width="35%">
+                                    <col width="15%">
+                                    <col width="35%">
+                                </colgroup>
+                                <thead>
+                                <tr>
+                                    <th>변수명</th>
+                                    <th>의미(단위)</th>
+                                    <th>변수명</th>
+                                    <th>의미(단위)</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr>
+                                    <td><p class="txt">REG_ID</p></td>
+                                    <td><p class="txt">예보구역코드</p></td>
+                                    <td ><p class="txt">TM_ST</p></td>
+                                    
+                                    <td ><p class="txt">시작시각(년월일시분,KST)</p></td>
+                                    
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">TM_ED</p></td>
+                                    <td><p class="txt">종료시각(년월일시분,KST)</p></td>
+                                    <td ><p class="txt">REG_SP</p></td>
+                                    
+                                    <td ><p class="txt">특성</p></td>
+                                    
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">REG_NAME</p></td>
+                                    <td><p class="txt">예보구역명</p></td>
+                                    
+                                    <td><p class="txt" ></p></td>
+                                    
+                                    <td ><p class="txt" ></p></td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    
+                    <!-- API sub resParams end -->
+                
+                 <!--   <h3 th:utext="${apiChildrenData.getApiNm()}">K10. 자동기상관측장비(AWS) 매분자료</h3>
+                    <p class="tit-cont02" th:utext="${apiChildrenData.getApiDesc()}">자동기상관측장비(AWS, Automatic Weather System)는 지상의 기온, 강수, 풍향·속 등을 측정하는 관측장비로 전국 약 600여 지점에 설치되어 있습니다.<br/>
+                        자료 생산주기는 분, 시간, 일, 월,연이며,1997년 이후 자료를 보유(지점마다 상이함) 중입니다.</p> -->
+                    <!-- API sub list apiDescList-->
+                    
+
+
+                    <!-- API sub dscApiList end -->
+                    <!-- API sub AttachFiles -->
+                    
+                    <!-- API sub AttachFiles end -->
+                    <!-- API sub sampleUrls -->
+                    
+                       
+                        
+                    		<!-- 2024.02.06 주경돈 주무관요청 - api표현방식 수정 -->
+							
+							
+							
+																
+								
+								<h4 class="mt40 flex-beetwen">1.2 단기 개황, disp=1(JSON)
+							
+							
+	                            
+	                                
+	                                    <span style="margin-left:auto;"><button class="btn btn_00" onClick="onClickLoginBtn()">API 활용신청</button></span>
+	                                
+	                                
+	                            
+	<!--                            <span><button class="btn03" th:if="${apiChildrenData.seqRoute == 5}" th:onclick="onClickGenerateUrl(751)">URL 발행</button></span>-->
+	                        </h4>
+	                            <p class="flex-beetwen" style="min-height: 50px;">
+	                                <a href="https://apihub.kma.go.kr/api/typ01/url/fct_afs_ds.php?stn=&amp;tmfc1=2013121106&amp;tmfc2=2013121118&amp;disp=0&amp;help=1&amp;authKey=인증키입력" class="url-link" target="_blank">
+	                                    https://apihub.kma.go.kr/api/typ01/url/fct_afs_ds.php?stn=&tmfc1=2013121106&tmfc2=2013121118&disp=0&help=1&authKey={인증키입력}
+	                                </a><span><button type="button" class="btn btn_01" style="width: 90px;" onclick="copySampleUrl(event)">URL복사</button></span>
+	                            </p>
+                        
+                    
+                    <!-- API sub sampleUrls end -->
+                    <!-- API sub reqParams -->
+                    
+                        <h5 class="mt40">요청인자</h4>
+                        <div class="Tbl-wrap mt40">
+                            <table class="Tbl">
+                                <caption>데이터 기본 정보</caption>
+                                <colgroup>
+                                    <col width="15%">
+                                    <col width="15%">
+                                    <col width="70%">
+                                </colgroup>
+                                <thead>
+                                <tr>
+                                    <th>인자명</th>
+                                    <th>의미</th>
+                                    <th>설명</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr>
+                                    <td><p class="txt">stn</p></td>
+                                    <td><p class="txt">발표관서번호</p></td>
+                                    <td><p class="txt">없으면 전체</p></td>
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">tmfc1</p></td>
+                                    <td><p class="txt">발표시간<br />(기간)</p></td>
+                                    <td><p class="txt">기간: [tmfc1 ~ tmfc2] : 년월일시(KST)<br />없으면, 가장 최근 발표시간자료</p></td>
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">tmfc2</p></td>
+                                    <td><p class="txt">발표시간<br />(기간)</p></td>
+                                    <td><p class="txt">기간: [tmfc1 ~ tmfc2] : 년월일시(KST)<br />없으면, 가장 최근 발표시간자료</p></td>
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">disp</p></td>
+                                    <td><p class="txt">표출형태</p></td>
+                                    <td><p class="txt">0 : 변수별로 일정한 길이 유지, 포트란에 적합 (default)<br />1 : 구분자(,)로 구분, 엑셀에 적합</p></td>
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">help</p></td>
+                                    <td><p class="txt">도움말</p></td>
+                                    <td><p class="txt">1(도움말 정보 표시)</p></td>
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">authKey</p></td>
+                                    <td><p class="txt">인증키</p></td>
+                                    <td><p class="txt">발급된 API 인증키</p></td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    
+                    <!-- API sub reqParams end -->
+                    <!-- API sub resParams -->
+                    
+                        <h5 class="mt40">출력결과</h4>
+                        <div class="Tbl-wrap">
+                            <table class="Tbl">
+                                <caption>출력결과</caption>
+                                <colgroup>
+                                    <col width="15%">
+                                    <col width="35%">
+                                    <col width="15%">
+                                    <col width="35%">
+                                </colgroup>
+                                <thead>
+                                <tr>
+                                    <th>변수명</th>
+                                    <th>의미(단위)</th>
+                                    <th>변수명</th>
+                                    <th>의미(단위)</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr>
+                                    <td><p class="txt">STN_ID</p></td>
+                                    <td><p class="txt">발표관서</p></td>
+                                    <td ><p class="txt">TM_FC</p></td>
+                                    
+                                    <td ><p class="txt">발표시각(KST)</p></td>
+                                    
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">TM_IN</p></td>
+                                    <td><p class="txt">입력시각(KST)</p></td>
+                                    <td ><p class="txt">CNT</p></td>
+                                    
+                                    <td ><p class="txt">참조번호</p></td>
+                                    
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">MAN_FC</p></td>
+                                    <td><p class="txt">예보관명</p></td>
+                                    
+                                    <td><p class="txt" ></p></td>
+                                    
+                                    <td ><p class="txt" ></p></td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    
+                    <!-- API sub resParams end -->
+                
+                 <!--   <h3 th:utext="${apiChildrenData.getApiNm()}">K10. 자동기상관측장비(AWS) 매분자료</h3>
+                    <p class="tit-cont02" th:utext="${apiChildrenData.getApiDesc()}">자동기상관측장비(AWS, Automatic Weather System)는 지상의 기온, 강수, 풍향·속 등을 측정하는 관측장비로 전국 약 600여 지점에 설치되어 있습니다.<br/>
+                        자료 생산주기는 분, 시간, 일, 월,연이며,1997년 이후 자료를 보유(지점마다 상이함) 중입니다.</p> -->
+                    <!-- API sub list apiDescList-->
+                    
+
+
+                    <!-- API sub dscApiList end -->
+                    <!-- API sub AttachFiles -->
+                    
+                    <!-- API sub AttachFiles end -->
+                    <!-- API sub sampleUrls -->
+                    
+                       
+                        
+                    		<!-- 2024.02.06 주경돈 주무관요청 - api표현방식 수정 -->
+							
+							
+							
+																
+								
+								<h4 class="mt40 flex-beetwen">1.3 단기 육상예보
+							
+							
+	                            
+	                                
+	                                    <span style="margin-left:auto;"><button class="btn btn_00" onClick="onClickLoginBtn()">API 활용신청</button></span>
+	                                
+	                                
+	                            
+	<!--                            <span><button class="btn03" th:if="${apiChildrenData.seqRoute == 5}" th:onclick="onClickGenerateUrl(752)">URL 발행</button></span>-->
+	                        </h4>
+	                            <p class="flex-beetwen" style="min-height: 50px;">
+	                                <a href="https://apihub.kma.go.kr/api/typ01/url/fct_afs_dl.php?reg=&amp;tmfc1=2013121106&amp;tmfc2=2013121118&amp;disp=0&amp;help=1&amp;authKey=인증키입력" class="url-link" target="_blank">
+	                                    https://apihub.kma.go.kr/api/typ01/url/fct_afs_dl.php?reg=&tmfc1=2013121106&tmfc2=2013121118&disp=0&help=1&authKey={인증키입력}
+	                                </a><span><button type="button" class="btn btn_01" style="width: 90px;" onclick="copySampleUrl(event)">URL복사</button></span>
+	                            </p>
+                        
+                    
+                    <!-- API sub sampleUrls end -->
+                    <!-- API sub reqParams -->
+                    
+                        <h5 class="mt40">요청인자</h4>
+                        <div class="Tbl-wrap mt40">
+                            <table class="Tbl">
+                                <caption>데이터 기본 정보</caption>
+                                <colgroup>
+                                    <col width="15%">
+                                    <col width="15%">
+                                    <col width="70%">
+                                </colgroup>
+                                <thead>
+                                <tr>
+                                    <th>인자명</th>
+                                    <th>의미</th>
+                                    <th>설명</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr>
+                                    <td><p class="txt">reg</p></td>
+                                    <td><p class="txt">예보구역코드</p></td>
+                                    <td><p class="txt">없으면 전체</p></td>
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">tmfc1</p></td>
+                                    <td><p class="txt">발표시간<br />(기간)</p></td>
+                                    <td><p class="txt">기간: [tmfc1 ~ tmfc2] : 년월일시(KST)<br />없으면, 가장 최근 발표시간자료</p></td>
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">tmfc2</p></td>
+                                    <td><p class="txt">발표시간<br />(기간)</p></td>
+                                    <td><p class="txt">기간: [tmfc1 ~ tmfc2] : 년월일시(KST)<br />없으면, 가장 최근 발표시간자료</p></td>
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">disp</p></td>
+                                    <td><p class="txt">표출형태</p></td>
+                                    <td><p class="txt">0 : 변수별로 일정한 길이 유지, 포트란에 적합 (default)<br />1 : 구분자(,)로 구분, 엑셀에 적합</p></td>
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">help</p></td>
+                                    <td><p class="txt">도움말</p></td>
+                                    <td><p class="txt">1(도움말 정보 표시)</p></td>
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">authKey</p></td>
+                                    <td><p class="txt">인증키</p></td>
+                                    <td><p class="txt">발급된 API 인증키</p></td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    
+                    <!-- API sub reqParams end -->
+                    <!-- API sub resParams -->
+                    
+                        <h5 class="mt40">출력결과</h4>
+                        <div class="Tbl-wrap">
+                            <table class="Tbl">
+                                <caption>출력결과</caption>
+                                <colgroup>
+                                    <col width="15%">
+                                    <col width="35%">
+                                    <col width="15%">
+                                    <col width="35%">
+                                </colgroup>
+                                <thead>
+                                <tr>
+                                    <th>변수명</th>
+                                    <th>의미(단위)</th>
+                                    <th>변수명</th>
+                                    <th>의미(단위)</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr>
+                                    <td><p class="txt">REG_ID</p></td>
+                                    <td><p class="txt">예보구역코드</p></td>
+                                    <td ><p class="txt">TM_FC</p></td>
+                                    
+                                    <td ><p class="txt">발표시각(KST)</p></td>
+                                    
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">MAN_FC</p></td>
+                                    <td><p class="txt">예보관명</p></td>
+                                    <td ><p class="txt">TM_EF</p></td>
+                                    
+                                    <td ><p class="txt">발효시각(년월일시분,KST)</p></td>
+                                    
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">MOD</p></td>
+                                    <td><p class="txt">구간 (A01(24시간),A02(12시간))</p></td>
+                                    <td ><p class="txt">NE</p></td>
+                                    
+                                    <td ><p class="txt">발효번호</p></td>
+                                    
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">STN</p></td>
+                                    <td><p class="txt">발표관서</p></td>
+                                    <td ><p class="txt">C</p></td>
+                                    
+                                    <td ><p class="txt">발표코드</p></td>
+                                    
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">MAN_ID</p></td>
+                                    <td><p class="txt">예보관ID</p></td>
+                                    <td ><p class="txt">W1</p></td>
+                                    
+                                    <td ><p class="txt">풍향1(16방위) (범위 시작값)</p></td>
+                                    
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">T</p></td>
+                                    <td><p class="txt">풍향경향</p></td>
+                                    <td ><p class="txt">W2</p></td>
+                                    
+                                    <td ><p class="txt">풍향2(16방위) (범위 종료값)</p></td>
+                                    
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">TA</p></td>
+                                    <td><p class="txt">기온</p></td>
+                                    <td ><p class="txt">ST</p></td>
+                                    
+                                    <td ><p class="txt">강수확률(%)</p></td>
+                                    
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">SKY</p></td>
+                                    <td><p class="txt">하늘상태코드 (DB01(맑음),DB02(구름조금),DB03(구름많음),DB04(흐림))</p></td>
+                                    <td ><p class="txt">PREP</p></td>
+                                    
+                                    <td ><p class="txt">강수유무코드 (1(비),2(비/눈),4(눈/비),3(눈))</p></td>
+                                    
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">WF</p></td>
+                                    <td><p class="txt">예보</p></td>
+                                    
+                                    <td><p class="txt" ></p></td>
+                                    
+                                    <td ><p class="txt" ></p></td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    
+                    <!-- API sub resParams end -->
+                
+                 <!--   <h3 th:utext="${apiChildrenData.getApiNm()}">K10. 자동기상관측장비(AWS) 매분자료</h3>
+                    <p class="tit-cont02" th:utext="${apiChildrenData.getApiDesc()}">자동기상관측장비(AWS, Automatic Weather System)는 지상의 기온, 강수, 풍향·속 등을 측정하는 관측장비로 전국 약 600여 지점에 설치되어 있습니다.<br/>
+                        자료 생산주기는 분, 시간, 일, 월,연이며,1997년 이후 자료를 보유(지점마다 상이함) 중입니다.</p> -->
+                    <!-- API sub list apiDescList-->
+                    
+
+
+                    <!-- API sub dscApiList end -->
+                    <!-- API sub AttachFiles -->
+                    
+                    <!-- API sub AttachFiles end -->
+                    <!-- API sub sampleUrls -->
+                    
+                       
+                        
+                    		<!-- 2024.02.06 주경돈 주무관요청 - api표현방식 수정 -->
+							
+								<h4 class="mt40 flex-beetwen">
+							
+							
+							
+	                            
+	                                
+	                                    <span style="margin-left:auto;"><button class="btn btn_00" onClick="onClickLoginBtn()">API 활용신청</button></span>
+	                                
+	                                
+	                            
+	<!--                            <span><button class="btn03" th:if="${apiChildrenData.seqRoute == 5}" th:onclick="onClickGenerateUrl(753)">URL 발행</button></span>-->
+	                        </h4>
+	                            <p class="flex-beetwen" style="min-height: 50px;">
+	                                <a href="https://apihub.kma.go.kr/api/typ01/url/fct_afs_dl2.php?reg=&amp;tmfc1=2020052505&amp;tmfc2=2020052517&amp;disp=0&amp;help=1&amp;authKey=인증키입력" class="url-link" target="_blank">
+	                                    https://apihub.kma.go.kr/api/typ01/url/fct_afs_dl2.php?reg=&tmfc1=2020052505&tmfc2=2020052517&disp=0&help=1&authKey={인증키입력}
+	                                </a><span><button type="button" class="btn btn_01" style="width: 90px;" onclick="copySampleUrl(event)">URL복사</button></span>
+	                            </p>
+                        
+                    
+                    <!-- API sub sampleUrls end -->
+                    <!-- API sub reqParams -->
+                    
+                        <h5 class="mt40">요청인자</h4>
+                        <div class="Tbl-wrap mt40">
+                            <table class="Tbl">
+                                <caption>데이터 기본 정보</caption>
+                                <colgroup>
+                                    <col width="15%">
+                                    <col width="15%">
+                                    <col width="70%">
+                                </colgroup>
+                                <thead>
+                                <tr>
+                                    <th>인자명</th>
+                                    <th>의미</th>
+                                    <th>설명</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr>
+                                    <td><p class="txt">reg</p></td>
+                                    <td><p class="txt">예보구역코드</p></td>
+                                    <td><p class="txt">없으면 전체</p></td>
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">tmfc1</p></td>
+                                    <td><p class="txt">발표시간<br />(기간)</p></td>
+                                    <td><p class="txt">기간: [tmfc1 ~ tmfc2] : 년월일시(KST)<br />없으면, 가장 최근 발표시간자료</p></td>
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">tmfc2</p></td>
+                                    <td><p class="txt">발표시간<br />(기간)</p></td>
+                                    <td><p class="txt">기간: [tmfc1 ~ tmfc2] : 년월일시(KST)<br />없으면, 가장 최근 발표시간자료</p></td>
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">disp</p></td>
+                                    <td><p class="txt">표출형태</p></td>
+                                    <td><p class="txt">0 : 변수별로 일정한 길이 유지, 포트란에 적합 (default)<br />1 : 구분자(,)로 구분, 엑셀에 적합</p></td>
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">help</p></td>
+                                    <td><p class="txt">도움말</p></td>
+                                    <td><p class="txt">1(도움말 정보 표시)</p></td>
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">authKey</p></td>
+                                    <td><p class="txt">인증키</p></td>
+                                    <td><p class="txt">발급된 API 인증키</p></td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    
+                    <!-- API sub reqParams end -->
+                    <!-- API sub resParams -->
+                    
+                        <h5 class="mt40">출력결과</h4>
+                        <div class="Tbl-wrap">
+                            <table class="Tbl">
+                                <caption>출력결과</caption>
+                                <colgroup>
+                                    <col width="15%">
+                                    <col width="35%">
+                                    <col width="15%">
+                                    <col width="35%">
+                                </colgroup>
+                                <thead>
+                                <tr>
+                                    <th>변수명</th>
+                                    <th>의미(단위)</th>
+                                    <th>변수명</th>
+                                    <th>의미(단위)</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr>
+                                    <td><p class="txt">REG_ID</p></td>
+                                    <td><p class="txt">예보구역코드</p></td>
+                                    <td ><p class="txt">TM_FC</p></td>
+                                    
+                                    <td ><p class="txt">발표시각(KST)</p></td>
+                                    
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">TM_IN</p></td>
+                                    <td><p class="txt">입력시각(KST)</p></td>
+                                    <td ><p class="txt">MAN_FC</p></td>
+                                    
+                                    <td ><p class="txt">예보관명</p></td>
+                                    
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">TM_EF</p></td>
+                                    <td><p class="txt">발효시각(년월일시분,KST)</p></td>
+                                    <td ><p class="txt">MOD</p></td>
+                                    
+                                    <td ><p class="txt">구간 (A01(24시간),A02(12시간))</p></td>
+                                    
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">NE</p></td>
+                                    <td><p class="txt">발효번호</p></td>
+                                    <td ><p class="txt">STN</p></td>
+                                    
+                                    <td ><p class="txt">발표관서</p></td>
+                                    
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">C</p></td>
+                                    <td><p class="txt">발표코드</p></td>
+                                    <td ><p class="txt">MAN_ID</p></td>
+                                    
+                                    <td ><p class="txt">예보관ID</p></td>
+                                    
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">W1</p></td>
+                                    <td><p class="txt">풍향1(16방위) (범위 시작값)</p></td>
+                                    <td ><p class="txt">T</p></td>
+                                    
+                                    <td ><p class="txt">풍향경향</p></td>
+                                    
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">W2</p></td>
+                                    <td><p class="txt">풍향2(16방위) (범위 종료값)</p></td>
+                                    <td ><p class="txt">TA</p></td>
+                                    
+                                    <td ><p class="txt">기온</p></td>
+                                    
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">ST</p></td>
+                                    <td><p class="txt">강수확률(%)</p></td>
+                                    <td ><p class="txt">SKY</p></td>
+                                    
+                                    <td ><p class="txt">하늘상태코드 (DB01(맑음),DB02(구름조금),DB03(구름많음),DB04(흐림))</p></td>
+                                    
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">PREP</p></td>
+                                    <td><p class="txt">강수유무코드 (1(비),2(비/눈),4(눈/비),3(눈))</p></td>
+                                    <td ><p class="txt">WF</p></td>
+                                    
+                                    <td ><p class="txt">예보</p></td>
+                                    
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    
+                    <!-- API sub resParams end -->
+                
+                 <!--   <h3 th:utext="${apiChildrenData.getApiNm()}">K10. 자동기상관측장비(AWS) 매분자료</h3>
+                    <p class="tit-cont02" th:utext="${apiChildrenData.getApiDesc()}">자동기상관측장비(AWS, Automatic Weather System)는 지상의 기온, 강수, 풍향·속 등을 측정하는 관측장비로 전국 약 600여 지점에 설치되어 있습니다.<br/>
+                        자료 생산주기는 분, 시간, 일, 월,연이며,1997년 이후 자료를 보유(지점마다 상이함) 중입니다.</p> -->
+                    <!-- API sub list apiDescList-->
+                    
+
+
+                    <!-- API sub dscApiList end -->
+                    <!-- API sub AttachFiles -->
+                    
+                    <!-- API sub AttachFiles end -->
+                    <!-- API sub sampleUrls -->
+                    
+                       
+                        
+                    		<!-- 2024.02.06 주경돈 주무관요청 - api표현방식 수정 -->
+							
+							
+							
+																
+								
+								<h4 class="mt40 flex-beetwen">1.5 단기 해상예보
+							
+							
+	                            
+	                                
+	                                    <span style="margin-left:auto;"><button class="btn btn_00" onClick="onClickLoginBtn()">API 활용신청</button></span>
+	                                
+	                                
+	                            
+	<!--                            <span><button class="btn03" th:if="${apiChildrenData.seqRoute == 5}" th:onclick="onClickGenerateUrl(754)">URL 발행</button></span>-->
+	                        </h4>
+	                            <p class="flex-beetwen" style="min-height: 50px;">
+	                                <a href="https://apihub.kma.go.kr/api/typ01/url/fct_afs_do.php?reg=&amp;tmfc1=2013121106&amp;tmfc2=2013121118&amp;disp=0&amp;help=1&amp;authKey=인증키입력" class="url-link" target="_blank">
+	                                    https://apihub.kma.go.kr/api/typ01/url/fct_afs_do.php?reg=&tmfc1=2013121106&tmfc2=2013121118&disp=0&help=1&authKey={인증키입력}
+	                                </a><span><button type="button" class="btn btn_01" style="width: 90px;" onclick="copySampleUrl(event)">URL복사</button></span>
+	                            </p>
+                        
+                    
+                    <!-- API sub sampleUrls end -->
+                    <!-- API sub reqParams -->
+                    
+                        <h5 class="mt40">요청인자</h4>
+                        <div class="Tbl-wrap mt40">
+                            <table class="Tbl">
+                                <caption>데이터 기본 정보</caption>
+                                <colgroup>
+                                    <col width="15%">
+                                    <col width="15%">
+                                    <col width="70%">
+                                </colgroup>
+                                <thead>
+                                <tr>
+                                    <th>인자명</th>
+                                    <th>의미</th>
+                                    <th>설명</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr>
+                                    <td><p class="txt">reg</p></td>
+                                    <td><p class="txt">예보구역코드</p></td>
+                                    <td><p class="txt">없으면 전체</p></td>
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">tmfc1</p></td>
+                                    <td><p class="txt">발표시간<br />(기간)</p></td>
+                                    <td><p class="txt">기간: [tmfc1 ~ tmfc2] : 년월일시(KST)<br />없으면, 가장 최근 발표시간자료</p></td>
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">tmfc2</p></td>
+                                    <td><p class="txt">발표시간<br />(기간)</p></td>
+                                    <td><p class="txt">기간: [tmfc1 ~ tmfc2] : 년월일시(KST)<br />없으면, 가장 최근 발표시간자료</p></td>
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">disp</p></td>
+                                    <td><p class="txt">표출형태</p></td>
+                                    <td><p class="txt">0 : 변수별로 일정한 길이 유지, 포트란에 적합 (default)<br />1 : 구분자(,)로 구분, 엑셀에 적합</p></td>
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">help</p></td>
+                                    <td><p class="txt">도움말</p></td>
+                                    <td><p class="txt">1(도움말 정보 표시)</p></td>
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">authKey</p></td>
+                                    <td><p class="txt">인증키</p></td>
+                                    <td><p class="txt">발급된 API 인증키</p></td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    
+                    <!-- API sub reqParams end -->
+                    <!-- API sub resParams -->
+                    
+                        <h5 class="mt40">출력결과</h4>
+                        <div class="Tbl-wrap">
+                            <table class="Tbl">
+                                <caption>출력결과</caption>
+                                <colgroup>
+                                    <col width="15%">
+                                    <col width="35%">
+                                    <col width="15%">
+                                    <col width="35%">
+                                </colgroup>
+                                <thead>
+                                <tr>
+                                    <th>변수명</th>
+                                    <th>의미(단위)</th>
+                                    <th>변수명</th>
+                                    <th>의미(단위)</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr>
+                                    <td><p class="txt">REG_ID</p></td>
+                                    <td><p class="txt">예보구역코드</p></td>
+                                    <td ><p class="txt">TM_FC</p></td>
+                                    
+                                    <td ><p class="txt">발표시각(KST)</p></td>
+                                    
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">TM_IN</p></td>
+                                    <td><p class="txt">입력시각(KST)</p></td>
+                                    <td ><p class="txt">MAN_FC</p></td>
+                                    
+                                    <td ><p class="txt">예보관명</p></td>
+                                    
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">TM_EF</p></td>
+                                    <td><p class="txt">발효시각(년월일시분,KST)</p></td>
+                                    <td ><p class="txt">MOD</p></td>
+                                    
+                                    <td ><p class="txt">구간 (A01(24시간),A02(12시간))</p></td>
+                                    
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">NE</p></td>
+                                    <td><p class="txt">발효번호</p></td>
+                                    <td ><p class="txt">STN</p></td>
+                                    
+                                    <td ><p class="txt">발표관서</p></td>
+                                    
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">C</p></td>
+                                    <td><p class="txt">발표코드</p></td>
+                                    <td ><p class="txt">MAN_ID</p></td>
+                                    
+                                    <td ><p class="txt">예보관ID</p></td>
+                                    
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">W1</p></td>
+                                    <td><p class="txt">풍향1(16방위) (범위 시작값)</p></td>
+                                    <td ><p class="txt">T</p></td>
+                                    
+                                    <td ><p class="txt">풍향경향</p></td>
+                                    
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">W2</p></td>
+                                    <td><p class="txt">풍향2(16방위) (범위 종료값)</p></td>
+                                    <td ><p class="txt">TA</p></td>
+                                    
+                                    <td ><p class="txt">기온</p></td>
+                                    
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">ST</p></td>
+                                    <td><p class="txt">강수확률(%)</p></td>
+                                    <td ><p class="txt">SKY</p></td>
+                                    
+                                    <td ><p class="txt">하늘상태코드 (DB01(맑음),DB02(구름조금),DB03(구름많음),DB04(흐림))</p></td>
+                                    
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">PREP</p></td>
+                                    <td><p class="txt">강수유무코드 (1(비),2(비/눈),4(눈/비),3(눈))</p></td>
+                                    <td ><p class="txt">WF</p></td>
+                                    
+                                    <td ><p class="txt">예보</p></td>
+                                    
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    
+                    <!-- API sub resParams end -->
+                
+                <!-- Api Sub List end -->
+
+                <!-- API sub resParams end -->
+            
+                <h3>2. 동네예보(단기예보, 초단기예보, 실황) 격자자료</h3>
+                <p class="tit-cont02"></p>
+                <!-- API sub list apiDescList-->
+                
+                <!-- API sub dscApiList end -->
+                <!-- API sub AttachFiles -->
+                
+                    <p class="mt10"><span>동네예보 격자영역 정보</span>
+                        
+                        
+                            <a class="btn-down" href="/getAttachFile.do?fileName=(20240305)%EB%8F%99%EB%84%A4%EC%98%88%EB%B3%B4%20%EA%B2%A9%EC%9E%90%EC%98%81%EC%97%AD%20%EC%A0%95%EB%B3%B4.pdf" target='_blank'>참고자료</a>
+                        
+                    </p>
+                
+                    <p class="mt10"><span>단기예보 예보기간 확대에 따른 변경사항</span>
+                        
+                        
+                            <a class="btn-down" href="/getAttachFile.do?fileName=(20241128)%EB%8B%A8%EA%B8%B0%EC%98%88%EB%B3%B4%20%EC%84%9C%EB%B9%84%EC%8A%A4%20%EA%B0%9C%EC%84%A0%EC%97%90%20%EB%94%B0%EB%A5%B8%20API%20%EB%B3%80%EA%B2%BD%EC%82%AC%ED%95%AD.pdf" target='_blank'>참고자료</a>
+                        
+                    </p>
+                
+                <!-- API sub AttachFiles end -->
+                <!-- API sub sampleUrls -->
+                
+                <!-- API sub sampleUrls end -->
+                <!-- API sub reqParams -->
+                
+                <!-- API sub reqParams end -->
+                <!-- API sub resParams -->
+                
+
+
+                <!-- API sub list -->
+                
+                 <!--   <h3 th:utext="${apiChildrenData.getApiNm()}">K10. 자동기상관측장비(AWS) 매분자료</h3>
+                    <p class="tit-cont02" th:utext="${apiChildrenData.getApiDesc()}">자동기상관측장비(AWS, Automatic Weather System)는 지상의 기온, 강수, 풍향·속 등을 측정하는 관측장비로 전국 약 600여 지점에 설치되어 있습니다.<br/>
+                        자료 생산주기는 분, 시간, 일, 월,연이며,1997년 이후 자료를 보유(지점마다 상이함) 중입니다.</p> -->
+                    <!-- API sub list apiDescList-->
+                    
+
+
+                    <!-- API sub dscApiList end -->
+                    <!-- API sub AttachFiles -->
+                    
+                    <!-- API sub AttachFiles end -->
+                    <!-- API sub sampleUrls -->
+                    
+                       
+                        
+                    		<!-- 2024.02.06 주경돈 주무관요청 - api표현방식 수정 -->
+							
+							
+							
+																
+								
+								<h4 class="mt40 flex-beetwen">2.1 단기예보
+							
+							
+	                            
+	                                
+	                                    <span style="margin-left:auto;"><button class="btn btn_00" onClick="onClickLoginBtn()">API 활용신청</button></span>
+	                                
+	                                
+	                            
+	<!--                            <span><button class="btn03" th:if="${apiChildrenData.seqRoute == 5}" th:onclick="onClickGenerateUrl(758)">URL 발행</button></span>-->
+	                        </h4>
+	                            <p class="flex-beetwen" style="min-height: 50px;">
+	                                <a href="https://apihub.kma.go.kr/api/typ01/cgi-bin/url/nph-dfs_shrt_grd?tmfc=2024022505&amp;tmef=2024022506&amp;vars=TMP&amp;authKey=인증키입력" class="url-link" target="_blank">
+	                                    https://apihub.kma.go.kr/api/typ01/cgi-bin/url/nph-dfs_shrt_grd?tmfc=2024022505&amp;tmef=2024022506&amp;vars=TMP&authKey={인증키입력}
+	                                </a><span><button type="button" class="btn btn_01" style="width: 90px;" onclick="copySampleUrl(event)">URL복사</button></span>
+	                            </p>
+                        
+                    
+                    <!-- API sub sampleUrls end -->
+                    <!-- API sub reqParams -->
+                    
+                        <h5 class="mt40">요청인자</h4>
+                        <div class="Tbl-wrap mt40">
+                            <table class="Tbl">
+                                <caption>데이터 기본 정보</caption>
+                                <colgroup>
+                                    <col width="15%">
+                                    <col width="15%">
+                                    <col width="70%">
+                                </colgroup>
+                                <thead>
+                                <tr>
+                                    <th>인자명</th>
+                                    <th>의미</th>
+                                    <th>설명</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr>
+                                    <td><p class="txt">tmfc</p></td>
+                                    <td><p class="txt">발표시간</p></td>
+                                    <td><p class="txt">연월일시(KST)<br />- 3시간 간격 생산(매일 2시, 5시, 8시, 11시, 14시, 17시, 20시, 23시 발표)</p></td>
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">tmef </p></td>
+                                    <td><p class="txt">발효시간</p></td>
+                                    <td><p class="txt">년월일시(KST)<br />- (2024.11.28. 14시 이전) 1시간 간격으로 제공(2, 5, 8, 11, 14시는 모레 자정까지, 17, 20, 23시는 글피 자정까지 제공)<br />- (2024.11.28. 14시 이후) 1시간 간격으로 제공(2, 5, 8, 11, 14시는 글피 자정까지, 17, 20, 23시는 그글피 자정까지 제공)</p></td>
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">vars </p></td>
+                                    <td><p class="txt">예보변수</p></td>
+                                    <td><p class="txt">TMP(기온), TMX(최고기온), TMN(최저기온), UUU(동서바람성분), VVV(남북바람성분), VEC(풍향), WSD(풍속), SKY(하늘상태), PTY(강수형태), POP(강수유무), PCP(1시간 강수량), SNO(1시간 신적설), REH(상대습도), WAV(파고)</p></td>
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">authKey</p></td>
+                                    <td><p class="txt">인증키</p></td>
+                                    <td><p class="txt">발급된 API 인증키</p></td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    
+                    <!-- API sub reqParams end -->
+                    <!-- API sub resParams -->
+                    
+                    <!-- API sub resParams end -->
+                
+                 <!--   <h3 th:utext="${apiChildrenData.getApiNm()}">K10. 자동기상관측장비(AWS) 매분자료</h3>
+                    <p class="tit-cont02" th:utext="${apiChildrenData.getApiDesc()}">자동기상관측장비(AWS, Automatic Weather System)는 지상의 기온, 강수, 풍향·속 등을 측정하는 관측장비로 전국 약 600여 지점에 설치되어 있습니다.<br/>
+                        자료 생산주기는 분, 시간, 일, 월,연이며,1997년 이후 자료를 보유(지점마다 상이함) 중입니다.</p> -->
+                    <!-- API sub list apiDescList-->
+                    
+
+
+                    <!-- API sub dscApiList end -->
+                    <!-- API sub AttachFiles -->
+                    
+                    <!-- API sub AttachFiles end -->
+                    <!-- API sub sampleUrls -->
+                    
+                       
+                        
+                    		<!-- 2024.02.06 주경돈 주무관요청 - api표현방식 수정 -->
+							
+							
+							
+																
+								
+								<h4 class="mt40 flex-beetwen">2.2 초단기예보
+							
+							
+	                            
+	                                
+	                                    <span style="margin-left:auto;"><button class="btn btn_00" onClick="onClickLoginBtn()">API 활용신청</button></span>
+	                                
+	                                
+	                            
+	<!--                            <span><button class="btn03" th:if="${apiChildrenData.seqRoute == 5}" th:onclick="onClickGenerateUrl(1008)">URL 발행</button></span>-->
+	                        </h4>
+	                            <p class="flex-beetwen" style="min-height: 50px;">
+	                                <a href="https://apihub.kma.go.kr/api/typ01/cgi-bin/url/nph-dfs_vsrt_grd?tmfc=202403011010&amp;tmef=2024030111&amp;vars=T1H&amp;authKey=인증키입력" class="url-link" target="_blank">
+	                                    https://apihub.kma.go.kr/api/typ01/cgi-bin/url/nph-dfs_vsrt_grd?tmfc=202403011010&amp;tmef=2024030111&amp;vars=T1H&authKey={인증키입력}
+	                                </a><span><button type="button" class="btn btn_01" style="width: 90px;" onclick="copySampleUrl(event)">URL복사</button></span>
+	                            </p>
+                        
+                    
+                    <!-- API sub sampleUrls end -->
+                    <!-- API sub reqParams -->
+                    
+                        <h5 class="mt40">요청인자</h4>
+                        <div class="Tbl-wrap mt40">
+                            <table class="Tbl">
+                                <caption>데이터 기본 정보</caption>
+                                <colgroup>
+                                    <col width="15%">
+                                    <col width="15%">
+                                    <col width="70%">
+                                </colgroup>
+                                <thead>
+                                <tr>
+                                    <th>인자명</th>
+                                    <th>의미</th>
+                                    <th>설명</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr>
+                                    <td><p class="txt">tmfc</p></td>
+                                    <td><p class="txt">발표시간</p></td>
+                                    <td><p class="txt">연월일시분(KST)<br />- 10분 간격 발표</p></td>
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">tmef</p></td>
+                                    <td><p class="txt">발효시간</p></td>
+                                    <td><p class="txt">년월일시(KST)<br />- 발표시간 기준 6시간 까지 1시간 간격으로 제공</p></td>
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">vars</p></td>
+                                    <td><p class="txt">예보변수</p></td>
+                                    <td><p class="txt">T1H(기온), UUU(동서바람성분), VVV(남북바람성분), VEC(풍향), WSD(풍속), SKY(하늘상태), LGT(낙뢰), PTY(강수형태), RN1(1시간 강수량), REH(상대습도), POP(강수확률, 2026.6.23. 12KST 이후부터 제공)</p></td>
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">authKey</p></td>
+                                    <td><p class="txt">인증키</p></td>
+                                    <td><p class="txt">발급된 API 인증키</p></td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    
+                    <!-- API sub reqParams end -->
+                    <!-- API sub resParams -->
+                    
+                    <!-- API sub resParams end -->
+                
+                 <!--   <h3 th:utext="${apiChildrenData.getApiNm()}">K10. 자동기상관측장비(AWS) 매분자료</h3>
+                    <p class="tit-cont02" th:utext="${apiChildrenData.getApiDesc()}">자동기상관측장비(AWS, Automatic Weather System)는 지상의 기온, 강수, 풍향·속 등을 측정하는 관측장비로 전국 약 600여 지점에 설치되어 있습니다.<br/>
+                        자료 생산주기는 분, 시간, 일, 월,연이며,1997년 이후 자료를 보유(지점마다 상이함) 중입니다.</p> -->
+                    <!-- API sub list apiDescList-->
+                    
+
+
+                    <!-- API sub dscApiList end -->
+                    <!-- API sub AttachFiles -->
+                    
+                    <!-- API sub AttachFiles end -->
+                    <!-- API sub sampleUrls -->
+                    
+                       
+                        
+                    		<!-- 2024.02.06 주경돈 주무관요청 - api표현방식 수정 -->
+							
+							
+							
+																
+								
+								<h4 class="mt40 flex-beetwen">2.3 실황
+							
+							
+	                            
+	                                
+	                                    <span style="margin-left:auto;"><button class="btn btn_00" onClick="onClickLoginBtn()">API 활용신청</button></span>
+	                                
+	                                
+	                            
+	<!--                            <span><button class="btn03" th:if="${apiChildrenData.seqRoute == 5}" th:onclick="onClickGenerateUrl(1009)">URL 발행</button></span>-->
+	                        </h4>
+	                            <p class="flex-beetwen" style="min-height: 50px;">
+	                                <a href="https://apihub.kma.go.kr/api/typ01/cgi-bin/url/nph-dfs_odam_grd?tmfc=202403051010&amp;vars=T1H&amp;authKey=인증키입력" class="url-link" target="_blank">
+	                                    https://apihub.kma.go.kr/api/typ01/cgi-bin/url/nph-dfs_odam_grd?tmfc=202403051010&amp;vars=T1H&authKey={인증키입력}
+	                                </a><span><button type="button" class="btn btn_01" style="width: 90px;" onclick="copySampleUrl(event)">URL복사</button></span>
+	                            </p>
+                        
+                    
+                    <!-- API sub sampleUrls end -->
+                    <!-- API sub reqParams -->
+                    
+                        <h5 class="mt40">요청인자</h4>
+                        <div class="Tbl-wrap mt40">
+                            <table class="Tbl">
+                                <caption>데이터 기본 정보</caption>
+                                <colgroup>
+                                    <col width="15%">
+                                    <col width="15%">
+                                    <col width="70%">
+                                </colgroup>
+                                <thead>
+                                <tr>
+                                    <th>인자명</th>
+                                    <th>의미</th>
+                                    <th>설명</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr>
+                                    <td><p class="txt">tmfc</p></td>
+                                    <td><p class="txt">발표시간</p></td>
+                                    <td><p class="txt">연월일시분(KST)<br />- (2024.3.4. 오전 10시 이후) 10분 간격 발표<br />- (2024.3.4. 오전 10시 이전) 1시간(매 정시) 간격 발표</p></td>
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">vars</p></td>
+                                    <td><p class="txt">변수</p></td>
+                                    <td><p class="txt">T1H(기온), UUU(동서바람성분), VVV(남북바람성분), VEC(풍향), WSD(풍속), PTY(강수형태), RN1(1시간 강수량), REH(상대습도)</p></td>
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">authKey</p></td>
+                                    <td><p class="txt">인증키</p></td>
+                                    <td><p class="txt">발급된 API 인증키</p></td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    
+                    <!-- API sub reqParams end -->
+                    <!-- API sub resParams -->
+                    
+                    <!-- API sub resParams end -->
+                
+                 <!--   <h3 th:utext="${apiChildrenData.getApiNm()}">K10. 자동기상관측장비(AWS) 매분자료</h3>
+                    <p class="tit-cont02" th:utext="${apiChildrenData.getApiDesc()}">자동기상관측장비(AWS, Automatic Weather System)는 지상의 기온, 강수, 풍향·속 등을 측정하는 관측장비로 전국 약 600여 지점에 설치되어 있습니다.<br/>
+                        자료 생산주기는 분, 시간, 일, 월,연이며,1997년 이후 자료를 보유(지점마다 상이함) 중입니다.</p> -->
+                    <!-- API sub list apiDescList-->
+                    
+
+
+                    <!-- API sub dscApiList end -->
+                    <!-- API sub AttachFiles -->
+                    
+                    <!-- API sub AttachFiles end -->
+                    <!-- API sub sampleUrls -->
+                    
+                       
+                        
+                    		<!-- 2024.02.06 주경돈 주무관요청 - api표현방식 수정 -->
+							
+							
+							
+								
+								<h4 class="mt40 flex-beetwen">2.4.1 동네예보 격자 번호 → 위·경도 변환								
+								
+							
+							
+	                            
+	                                
+	                                    <span style="margin-left:auto;"><button class="btn btn_00" onClick="onClickLoginBtn()">API 활용신청</button></span>
+	                                
+	                                
+	                            
+	<!--                            <span><button class="btn03" th:if="${apiChildrenData.seqRoute == 5}" th:onclick="onClickGenerateUrl(1010)">URL 발행</button></span>-->
+	                        </h4>
+	                            <p class="flex-beetwen" style="min-height: 50px;">
+	                                <a href="https://apihub.kma.go.kr/api/typ01/cgi-bin/url/nph-dfs_xy_lonlat?x=60&amp;y=127&amp;help=1&amp;authKey=인증키입력" class="url-link" target="_blank">
+	                                    https://apihub.kma.go.kr/api/typ01/cgi-bin/url/nph-dfs_xy_lonlat?x=60&amp;y=127&amp;help=1&authKey={인증키입력}
+	                                </a><span><button type="button" class="btn btn_01" style="width: 90px;" onclick="copySampleUrl(event)">URL복사</button></span>
+	                            </p>
+                        
+                        
+                    		<!-- 2024.02.06 주경돈 주무관요청 - api표현방식 수정 -->
+							
+							
+							
+								
+								<h4 class="mt40 flex-beetwen">2.4.2 임의 위·경도 → 인근 동네예보 격자 번호 변환								
+								
+							
+							
+	                            
+	                                
+	                                    <span style="margin-left:auto;"><button class="btn btn_00" onClick="onClickLoginBtn()">API 활용신청</button></span>
+	                                
+	                                
+	                            
+	<!--                            <span><button class="btn03" th:if="${apiChildrenData.seqRoute == 5}" th:onclick="onClickGenerateUrl(1010)">URL 발행</button></span>-->
+	                        </h4>
+	                            <p class="flex-beetwen" style="min-height: 50px;">
+	                                <a href="https://apihub.kma.go.kr/api/typ01/cgi-bin/url/nph-dfs_xy_lonlat?lon=127.5&amp;lat=36.5&amp;help=0&amp;authKey=인증키입력" class="url-link" target="_blank">
+	                                    https://apihub.kma.go.kr/api/typ01/cgi-bin/url/nph-dfs_xy_lonlat?lon=127.5&amp;lat=36.5&amp;help=0&authKey={인증키입력}
+	                                </a><span><button type="button" class="btn btn_01" style="width: 90px;" onclick="copySampleUrl(event)">URL복사</button></span>
+	                            </p>
+                        
+                    
+                    <!-- API sub sampleUrls end -->
+                    <!-- API sub reqParams -->
+                    
+                        <h5 class="mt40">요청인자</h4>
+                        <div class="Tbl-wrap mt40">
+                            <table class="Tbl">
+                                <caption>데이터 기본 정보</caption>
+                                <colgroup>
+                                    <col width="15%">
+                                    <col width="15%">
+                                    <col width="70%">
+                                </colgroup>
+                                <thead>
+                                <tr>
+                                    <th>인자명</th>
+                                    <th>의미</th>
+                                    <th>설명</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr>
+                                    <td><p class="txt">x</p></td>
+                                    <td><p class="txt">동네예보 격자 번호(동서방향)</p></td>
+                                    <td><p class="txt">범위: 1 ~ 149</p></td>
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">y</p></td>
+                                    <td><p class="txt">동네예보 격자 번호(남북방향)</p></td>
+                                    <td><p class="txt">범위: 1 ~ 253</p></td>
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">lon</p></td>
+                                    <td><p class="txt">임의 경도</p></td>
+                                    <td><p class="txt">범위: 123.310165 ~ 132.774963</p></td>
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">lat</p></td>
+                                    <td><p class="txt">임의 위도</p></td>
+                                    <td><p class="txt">범위: 31.651814 ~ 43.393490</p></td>
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">help</p></td>
+                                    <td><p class="txt">도움말</p></td>
+                                    <td><p class="txt">0(도움말 정보 표시 안됨), 1(도움말 정보 표시)</p></td>
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">authKey</p></td>
+                                    <td><p class="txt">인증키</p></td>
+                                    <td><p class="txt">발급된 API 인증키</p></td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    
+                    <!-- API sub reqParams end -->
+                    <!-- API sub resParams -->
+                    
+                        <h5 class="mt40">출력결과</h4>
+                        <div class="Tbl-wrap">
+                            <table class="Tbl">
+                                <caption>출력결과</caption>
+                                <colgroup>
+                                    <col width="15%">
+                                    <col width="35%">
+                                    <col width="15%">
+                                    <col width="35%">
+                                </colgroup>
+                                <thead>
+                                <tr>
+                                    <th>변수명</th>
+                                    <th>의미(단위)</th>
+                                    <th>변수명</th>
+                                    <th>의미(단위)</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr>
+                                    <td><p class="txt">lon</p></td>
+                                    <td><p class="txt">격자 경도</p></td>
+                                    <td ><p class="txt">lat</p></td>
+                                    
+                                    <td ><p class="txt">격자 위도</p></td>
+                                    
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">x</p></td>
+                                    <td><p class="txt">동네예보 격자 번호(동서방향)</p></td>
+                                    <td ><p class="txt">y</p></td>
+                                    
+                                    <td ><p class="txt">동네예보 격자 번호(남북방향)</p></td>
+                                    
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    
+                    <!-- API sub resParams end -->
+                
+                <!-- Api Sub List end -->
+
+                <!-- API sub resParams end -->
+            
+                <h3>3. 동네예보 통보문 조회</h3>
+                <p class="tit-cont02"></p>
+                <!-- API sub list apiDescList-->
+                
+                <!-- API sub dscApiList end -->
+                <!-- API sub AttachFiles -->
+                
+                    <p class="mt10"><span>동네예보 통보문 조회서비스 API 활용가이드</span>
+                        
+                        
+                            <a class="btn-down" href="/getAttachFile.do?fileName=%EB%8F%99%EB%84%A4%EC%98%88%EB%B3%B4%20%ED%86%B5%EB%B3%B4%EB%AC%B8%20%EC%A1%B0%ED%9A%8C%EC%84%9C%EB%B9%84%EC%8A%A4_API%ED%99%9C%EC%9A%A9%EA%B0%80%EC%9D%B4%EB%93%9C_241128.docx" target='_blank'>참고자료</a>
+                        
+                    </p>
+                
+                    <p class="mt10"><span>동네예보 통보문 조회서비스 지점목록 </span>
+                        
+                        
+                            <a class="btn-down" href="/getAttachFile.do?fileName=(20260324)%EB%8F%99%EB%84%A4%EC%98%88%EB%B3%B4%ED%86%B5%EB%B3%B4%EB%AC%B8%EC%A1%B0%ED%9A%8C%EC%84%9C%EB%B9%84%EC%8A%A4_API%ED%99%9C%EC%9A%A9%EA%B0%80%EC%9D%B4%EB%93%9C_%EC%A7%80%EC%A0%90%EB%AA%A9%EB%A1%9D.xlsx" target='_blank'>참고자료</a>
+                        
+                    </p>
+                
+                <!-- API sub AttachFiles end -->
+                <!-- API sub sampleUrls -->
+                
+                <!-- API sub sampleUrls end -->
+                <!-- API sub reqParams -->
+                
+                <!-- API sub reqParams end -->
+                <!-- API sub resParams -->
+                
+
+
+                <!-- API sub list -->
+                
+                 <!--   <h3 th:utext="${apiChildrenData.getApiNm()}">K10. 자동기상관측장비(AWS) 매분자료</h3>
+                    <p class="tit-cont02" th:utext="${apiChildrenData.getApiDesc()}">자동기상관측장비(AWS, Automatic Weather System)는 지상의 기온, 강수, 풍향·속 등을 측정하는 관측장비로 전국 약 600여 지점에 설치되어 있습니다.<br/>
+                        자료 생산주기는 분, 시간, 일, 월,연이며,1997년 이후 자료를 보유(지점마다 상이함) 중입니다.</p> -->
+                    <!-- API sub list apiDescList-->
+                    
+
+
+                    <!-- API sub dscApiList end -->
+                    <!-- API sub AttachFiles -->
+                    
+                    <!-- API sub AttachFiles end -->
+                    <!-- API sub sampleUrls -->
+                    
+                       
+                        
+                    		<!-- 2024.02.06 주경돈 주무관요청 - api표현방식 수정 -->
+							
+							
+							
+																
+								
+								<h4 class="mt40 flex-beetwen">3.1 기상개황조회
+							
+							
+	                            
+	                                
+	                                    <span style="margin-left:auto;"><button class="btn btn_00" onClick="onClickLoginBtn()">API 활용신청</button></span>
+	                                
+	                                
+	                            
+	<!--                            <span><button class="btn03" th:if="${apiChildrenData.seqRoute == 5}" th:onclick="onClickGenerateUrl(747)">URL 발행</button></span>-->
+	                        </h4>
+	                            <p class="flex-beetwen" style="min-height: 50px;">
+	                                <a href="https://apihub.kma.go.kr/api/typ02/openApi/VilageFcstMsgService/getWthrSituation?pageNo=1&amp;numOfRows=10&amp;dataType=XML&amp;stnId=108&amp;authKey=인증키입력" class="url-link" target="_blank">
+	                                    https://apihub.kma.go.kr/api/typ02/openApi/VilageFcstMsgService/getWthrSituation?pageNo=1&numOfRows=10&dataType=XML&stnId=108&authKey={인증키입력}
+	                                </a><span><button type="button" class="btn btn_01" style="width: 90px;" onclick="copySampleUrl(event)">URL복사</button></span>
+	                            </p>
+                        
+                    
+                    <!-- API sub sampleUrls end -->
+                    <!-- API sub reqParams -->
+                    
+                        <h5 class="mt40">요청인자</h4>
+                        <div class="Tbl-wrap mt40">
+                            <table class="Tbl">
+                                <caption>데이터 기본 정보</caption>
+                                <colgroup>
+                                    <col width="15%">
+                                    <col width="15%">
+                                    <col width="70%">
+                                </colgroup>
+                                <thead>
+                                <tr>
+                                    <th>인자명</th>
+                                    <th>의미</th>
+                                    <th>설명</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr>
+                                    <td><p class="txt">pageNo</p></td>
+                                    <td><p class="txt">페이지 번호</p></td>
+                                    <td><p class="txt">페이지번호</p></td>
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">numOfRows</p></td>
+                                    <td><p class="txt">한 페이지 결과 수</p></td>
+                                    <td><p class="txt">한 페이지 결과 수</p></td>
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">dataType</p></td>
+                                    <td><p class="txt">응답자료형식</p></td>
+                                    <td><p class="txt">요청자료형식(XML/JSON)Default: XML</p></td>
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">stnId</p></td>
+                                    <td><p class="txt">발표관서</p></td>
+                                    <td><p class="txt">108 기상청, 109 수도권(서울)..등 별첨 엑셀자료 참조(‘개황’ 구분 값 참고)</p></td>
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">authKey</p></td>
+                                    <td><p class="txt">인증키</p></td>
+                                    <td><p class="txt">발급된 API 인증키</p></td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    
+                    <!-- API sub reqParams end -->
+                    <!-- API sub resParams -->
+                    
+                        <h5 class="mt40">출력결과</h4>
+                        <div class="Tbl-wrap">
+                            <table class="Tbl">
+                                <caption>출력결과</caption>
+                                <colgroup>
+                                    <col width="15%">
+                                    <col width="35%">
+                                    <col width="15%">
+                                    <col width="35%">
+                                </colgroup>
+                                <thead>
+                                <tr>
+                                    <th>변수명</th>
+                                    <th>의미(단위)</th>
+                                    <th>변수명</th>
+                                    <th>의미(단위)</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr>
+                                    <td><p class="txt">resultCode</p></td>
+                                    <td><p class="txt">결과코드</p></td>
+                                    <td ><p class="txt">resultMsg</p></td>
+                                    
+                                    <td ><p class="txt">결과메시지</p></td>
+                                    
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">numOfRows</p></td>
+                                    <td><p class="txt">한 페이지 결과 수</p></td>
+                                    <td ><p class="txt">pageNo</p></td>
+                                    
+                                    <td ><p class="txt">페이지 번호</p></td>
+                                    
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">totalCount</p></td>
+                                    <td><p class="txt">전체 결과 수</p></td>
+                                    <td ><p class="txt">dataType</p></td>
+                                    
+                                    <td ><p class="txt">데이터 타입</p></td>
+                                    
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">stnId</p></td>
+                                    <td><p class="txt">발표관서</p></td>
+                                    <td ><p class="txt">tmFc</p></td>
+                                    
+                                    <td ><p class="txt">발표시간</p></td>
+                                    
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">wfSv1</p></td>
+                                    <td><p class="txt">기상개황(종합)</p></td>
+                                    <td ><p class="txt">wn</p></td>
+                                    
+                                    <td ><p class="txt">특보사항</p></td>
+                                    
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">wr</p></td>
+                                    <td><p class="txt">예비특보</p></td>
+                                    
+                                    <td><p class="txt" ></p></td>
+                                    
+                                    <td ><p class="txt" ></p></td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    
+                    <!-- API sub resParams end -->
+                
+                 <!--   <h3 th:utext="${apiChildrenData.getApiNm()}">K10. 자동기상관측장비(AWS) 매분자료</h3>
+                    <p class="tit-cont02" th:utext="${apiChildrenData.getApiDesc()}">자동기상관측장비(AWS, Automatic Weather System)는 지상의 기온, 강수, 풍향·속 등을 측정하는 관측장비로 전국 약 600여 지점에 설치되어 있습니다.<br/>
+                        자료 생산주기는 분, 시간, 일, 월,연이며,1997년 이후 자료를 보유(지점마다 상이함) 중입니다.</p> -->
+                    <!-- API sub list apiDescList-->
+                    
+
+
+                    <!-- API sub dscApiList end -->
+                    <!-- API sub AttachFiles -->
+                    
+                    <!-- API sub AttachFiles end -->
+                    <!-- API sub sampleUrls -->
+                    
+                       
+                        
+                    		<!-- 2024.02.06 주경돈 주무관요청 - api표현방식 수정 -->
+							
+							
+							
+																
+								
+								<h4 class="mt40 flex-beetwen">3.2 육상예보조회
+							
+							
+	                            
+	                                
+	                                    <span style="margin-left:auto;"><button class="btn btn_00" onClick="onClickLoginBtn()">API 활용신청</button></span>
+	                                
+	                                
+	                            
+	<!--                            <span><button class="btn03" th:if="${apiChildrenData.seqRoute == 5}" th:onclick="onClickGenerateUrl(748)">URL 발행</button></span>-->
+	                        </h4>
+	                            <p class="flex-beetwen" style="min-height: 50px;">
+	                                <a href="https://apihub.kma.go.kr/api/typ02/openApi/VilageFcstMsgService/getLandFcst?pageNo=1&amp;numOfRows=10&amp;dataType=XML&amp;regId=11A00101&amp;authKey=인증키입력" class="url-link" target="_blank">
+	                                    https://apihub.kma.go.kr/api/typ02/openApi/VilageFcstMsgService/getLandFcst?pageNo=1&numOfRows=10&dataType=XML&regId=11A00101&authKey={인증키입력}
+	                                </a><span><button type="button" class="btn btn_01" style="width: 90px;" onclick="copySampleUrl(event)">URL복사</button></span>
+	                            </p>
+                        
+                    
+                    <!-- API sub sampleUrls end -->
+                    <!-- API sub reqParams -->
+                    
+                        <h5 class="mt40">요청인자</h4>
+                        <div class="Tbl-wrap mt40">
+                            <table class="Tbl">
+                                <caption>데이터 기본 정보</caption>
+                                <colgroup>
+                                    <col width="15%">
+                                    <col width="15%">
+                                    <col width="70%">
+                                </colgroup>
+                                <thead>
+                                <tr>
+                                    <th>인자명</th>
+                                    <th>의미</th>
+                                    <th>설명</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr>
+                                    <td><p class="txt">pageNo</p></td>
+                                    <td><p class="txt">페이지 번호</p></td>
+                                    <td><p class="txt">페이지번호</p></td>
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">numOfRows</p></td>
+                                    <td><p class="txt">한 페이지 결과 수</p></td>
+                                    <td><p class="txt">한 페이지 결과 수</p></td>
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">dataType</p></td>
+                                    <td><p class="txt">응답자료형식</p></td>
+                                    <td><p class="txt">요청자료형식(XML/JSON) Default: XML</p></td>
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">regId</p></td>
+                                    <td><p class="txt">예보구역코드</p></td>
+                                    <td><p class="txt">11A00101(백령도), 11B10101 (서울), 11B20201(인천) 등... 별첨 엑셀자료 참조(‘육상’ 구분 값 참고)</p></td>
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">authKey</p></td>
+                                    <td><p class="txt">인증키</p></td>
+                                    <td><p class="txt">발급된 API 인증키</p></td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    
+                    <!-- API sub reqParams end -->
+                    <!-- API sub resParams -->
+                    
+                        <h5 class="mt40">출력결과</h4>
+                        <div class="Tbl-wrap">
+                            <table class="Tbl">
+                                <caption>출력결과</caption>
+                                <colgroup>
+                                    <col width="15%">
+                                    <col width="35%">
+                                    <col width="15%">
+                                    <col width="35%">
+                                </colgroup>
+                                <thead>
+                                <tr>
+                                    <th>변수명</th>
+                                    <th>의미(단위)</th>
+                                    <th>변수명</th>
+                                    <th>의미(단위)</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr>
+                                    <td><p class="txt">resultCode</p></td>
+                                    <td><p class="txt">결과코드</p></td>
+                                    <td ><p class="txt">resultMsg</p></td>
+                                    
+                                    <td ><p class="txt">결과메시지</p></td>
+                                    
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">numOfRows</p></td>
+                                    <td><p class="txt">한 페이지 결과 수</p></td>
+                                    <td ><p class="txt">pageNo</p></td>
+                                    
+                                    <td ><p class="txt">페이지 번호</p></td>
+                                    
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">totalCount</p></td>
+                                    <td><p class="txt">전체 결과 수</p></td>
+                                    <td ><p class="txt">dataType</p></td>
+                                    
+                                    <td ><p class="txt">데이터 타입</p></td>
+                                    
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">regId</p></td>
+                                    <td><p class="txt">예보구역코드</p></td>
+                                    <td ><p class="txt">announceTime</p></td>
+                                    
+                                    <td ><p class="txt">발표시간</p></td>
+                                    
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">numEf</p></td>
+                                    <td><p class="txt">발효번호(발표시간기준)</p></td>
+                                    <td ><p class="txt">wd1</p></td>
+                                    
+                                    <td ><p class="txt">풍향(1)</p></td>
+                                    
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">wdTnd</p></td>
+                                    <td><p class="txt">풍향연결코드</p></td>
+                                    <td ><p class="txt">wd2</p></td>
+                                    
+                                    <td ><p class="txt">풍향(2)</p></td>
+                                    
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">wsIt</p></td>
+                                    <td><p class="txt">풍속 강도코드</p></td>
+                                    <td ><p class="txt">ta</p></td>
+                                    
+                                    <td ><p class="txt">예상기온(℃)</p></td>
+                                    
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">rnSt</p></td>
+                                    <td><p class="txt">강수확률</p></td>
+                                    <td ><p class="txt">wf</p></td>
+                                    
+                                    <td ><p class="txt">날씨</p></td>
+                                    
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">wfCd</p></td>
+                                    <td><p class="txt">날씨코드(하늘상태)</p></td>
+                                    <td ><p class="txt">rnYn</p></td>
+                                    
+                                    <td ><p class="txt">강수형태</p></td>
+                                    
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    
+                    <!-- API sub resParams end -->
+                
+                 <!--   <h3 th:utext="${apiChildrenData.getApiNm()}">K10. 자동기상관측장비(AWS) 매분자료</h3>
+                    <p class="tit-cont02" th:utext="${apiChildrenData.getApiDesc()}">자동기상관측장비(AWS, Automatic Weather System)는 지상의 기온, 강수, 풍향·속 등을 측정하는 관측장비로 전국 약 600여 지점에 설치되어 있습니다.<br/>
+                        자료 생산주기는 분, 시간, 일, 월,연이며,1997년 이후 자료를 보유(지점마다 상이함) 중입니다.</p> -->
+                    <!-- API sub list apiDescList-->
+                    
+
+
+                    <!-- API sub dscApiList end -->
+                    <!-- API sub AttachFiles -->
+                    
+                    <!-- API sub AttachFiles end -->
+                    <!-- API sub sampleUrls -->
+                    
+                       
+                        
+                    		<!-- 2024.02.06 주경돈 주무관요청 - api표현방식 수정 -->
+							
+							
+							
+																
+								
+								<h4 class="mt40 flex-beetwen">3.3 해상예보조회
+							
+							
+	                            
+	                                
+	                                    <span style="margin-left:auto;"><button class="btn btn_00" onClick="onClickLoginBtn()">API 활용신청</button></span>
+	                                
+	                                
+	                            
+	<!--                            <span><button class="btn03" th:if="${apiChildrenData.seqRoute == 5}" th:onclick="onClickGenerateUrl(749)">URL 발행</button></span>-->
+	                        </h4>
+	                            <p class="flex-beetwen" style="min-height: 50px;">
+	                                <a href="https://apihub.kma.go.kr/api/typ02/openApi/VilageFcstMsgService/getSeaFcst?pageNo=1&amp;numOfRows=10&amp;dataType=XML&amp;regId=12A20100&amp;authKey=인증키입력" class="url-link" target="_blank">
+	                                    https://apihub.kma.go.kr/api/typ02/openApi/VilageFcstMsgService/getSeaFcst?pageNo=1&numOfRows=10&dataType=XML&regId=12A20100&authKey={인증키입력}
+	                                </a><span><button type="button" class="btn btn_01" style="width: 90px;" onclick="copySampleUrl(event)">URL복사</button></span>
+	                            </p>
+                        
+                    
+                    <!-- API sub sampleUrls end -->
+                    <!-- API sub reqParams -->
+                    
+                        <h5 class="mt40">요청인자</h4>
+                        <div class="Tbl-wrap mt40">
+                            <table class="Tbl">
+                                <caption>데이터 기본 정보</caption>
+                                <colgroup>
+                                    <col width="15%">
+                                    <col width="15%">
+                                    <col width="70%">
+                                </colgroup>
+                                <thead>
+                                <tr>
+                                    <th>인자명</th>
+                                    <th>의미</th>
+                                    <th>설명</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr>
+                                    <td><p class="txt">pageNo</p></td>
+                                    <td><p class="txt">페이지 번호</p></td>
+                                    <td><p class="txt">페이지번호</p></td>
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">numOfRows</p></td>
+                                    <td><p class="txt">한 페이지 결과 수</p></td>
+                                    <td><p class="txt">한 페이지 결과 수</p></td>
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">dataType</p></td>
+                                    <td><p class="txt">응답자료형식</p></td>
+                                    <td><p class="txt">요청자료형식(XML/JSON)Default: XML</p></td>
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">regId</p></td>
+                                    <td><p class="txt">예보구역코드</p></td>
+                                    <td><p class="txt">12A20100 (서해중부앞바다), 12B20100(남해동부앞바다) 등... 별첨 엑셀자료 참조(‘해상’ 구분 값 참고)</p></td>
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">authKey</p></td>
+                                    <td><p class="txt">인증키</p></td>
+                                    <td><p class="txt">발급된 API 인증키</p></td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    
+                    <!-- API sub reqParams end -->
+                    <!-- API sub resParams -->
+                    
+                        <h5 class="mt40">출력결과</h4>
+                        <div class="Tbl-wrap">
+                            <table class="Tbl">
+                                <caption>출력결과</caption>
+                                <colgroup>
+                                    <col width="15%">
+                                    <col width="35%">
+                                    <col width="15%">
+                                    <col width="35%">
+                                </colgroup>
+                                <thead>
+                                <tr>
+                                    <th>변수명</th>
+                                    <th>의미(단위)</th>
+                                    <th>변수명</th>
+                                    <th>의미(단위)</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr>
+                                    <td><p class="txt">resultCode</p></td>
+                                    <td><p class="txt">결과코드</p></td>
+                                    <td ><p class="txt">resultMsg</p></td>
+                                    
+                                    <td ><p class="txt">결과메시지</p></td>
+                                    
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">numOfRows</p></td>
+                                    <td><p class="txt">한 페이지 결과 수</p></td>
+                                    <td ><p class="txt">pageNo</p></td>
+                                    
+                                    <td ><p class="txt">페이지 번호</p></td>
+                                    
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">totalCount</p></td>
+                                    <td><p class="txt">전체 결과 수</p></td>
+                                    <td ><p class="txt">dataType</p></td>
+                                    
+                                    <td ><p class="txt">데이터 타입</p></td>
+                                    
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">regId</p></td>
+                                    <td><p class="txt">예보구역코드</p></td>
+                                    <td ><p class="txt">tmFc</p></td>
+                                    
+                                    <td ><p class="txt">발표시간</p></td>
+                                    
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">numEf</p></td>
+                                    <td><p class="txt">발효번호</p></td>
+                                    <td ><p class="txt">wd1</p></td>
+                                    
+                                    <td ><p class="txt">풍향1</p></td>
+                                    
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">wdTnd</p></td>
+                                    <td><p class="txt">풍향연결코드</p></td>
+                                    <td ><p class="txt">wd2</p></td>
+                                    
+                                    <td ><p class="txt">풍향(2)</p></td>
+                                    
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">ws1</p></td>
+                                    <td><p class="txt">풍속1(m/s)</p></td>
+                                    <td ><p class="txt">ws2</p></td>
+                                    
+                                    <td ><p class="txt">풍속2(m/s)</p></td>
+                                    
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">wh1</p></td>
+                                    <td><p class="txt">파고1(m)</p></td>
+                                    <td ><p class="txt">wh2</p></td>
+                                    
+                                    <td ><p class="txt">파고2(m)</p></td>
+                                    
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">wf</p></td>
+                                    <td><p class="txt">날씨</p></td>
+                                    <td ><p class="txt">wfCd</p></td>
+                                    
+                                    <td ><p class="txt">날씨예보코드</p></td>
+                                    
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">rnYn</p></td>
+                                    <td><p class="txt">강수형태</p></td>
+                                    
+                                    <td><p class="txt" ></p></td>
+                                    
+                                    <td ><p class="txt" ></p></td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    
+                    <!-- API sub resParams end -->
+                
+                <!-- Api Sub List end -->
+
+                <!-- API sub resParams end -->
+            
+                <h3>4. 동네예보(초단기실황·초단기예보·단기예보) 조회</h3>
+                <p class="tit-cont02"></p>
+                <!-- API sub list apiDescList-->
+                
+                <!-- API sub dscApiList end -->
+                <!-- API sub AttachFiles -->
+                
+                    <p class="mt10"><span>동네예보 지점 좌표(위경도)</span>
+                        
+                        
+                            <a class="btn-down" href="/getAttachFile.do?fileName=%EB%8F%99%EB%84%A4%EC%98%88%EB%B3%B4%EC%A7%80%EC%A0%90%EC%A2%8C%ED%91%9C(%EC%9C%84%EA%B2%BD%EB%8F%84)_260701.xlsx" target='_blank'>참고자료</a>
+                        
+                    </p>
+                
+                    <p class="mt10"><span>API 활용가이드</span>
+                        
+                        
+                            <a class="btn-down" href="/getAttachFile.do?fileName=%EB%8B%A8%EA%B8%B0%EC%98%88%EB%B3%B4%EC%A1%B0%ED%9A%8C%EC%84%9C%EB%B9%84%EC%8A%A4_API%ED%99%9C%EC%9A%A9%EA%B0%80%EC%9D%B4%EB%93%9C_260623.docx" target='_blank'>참고자료</a>
+                        
+                    </p>
+                
+                <!-- API sub AttachFiles end -->
+                <!-- API sub sampleUrls -->
+                
+                <!-- API sub sampleUrls end -->
+                <!-- API sub reqParams -->
+                
+                <!-- API sub reqParams end -->
+                <!-- API sub resParams -->
+                
+
+
+                <!-- API sub list -->
+                
+                 <!--   <h3 th:utext="${apiChildrenData.getApiNm()}">K10. 자동기상관측장비(AWS) 매분자료</h3>
+                    <p class="tit-cont02" th:utext="${apiChildrenData.getApiDesc()}">자동기상관측장비(AWS, Automatic Weather System)는 지상의 기온, 강수, 풍향·속 등을 측정하는 관측장비로 전국 약 600여 지점에 설치되어 있습니다.<br/>
+                        자료 생산주기는 분, 시간, 일, 월,연이며,1997년 이후 자료를 보유(지점마다 상이함) 중입니다.</p> -->
+                    <!-- API sub list apiDescList-->
+                    
+
+
+                    <!-- API sub dscApiList end -->
+                    <!-- API sub AttachFiles -->
+                    
+                    <!-- API sub AttachFiles end -->
+                    <!-- API sub sampleUrls -->
+                    
+                       
+                        
+                    		<!-- 2024.02.06 주경돈 주무관요청 - api표현방식 수정 -->
+							
+							
+							
+																
+								
+								<h4 class="mt40 flex-beetwen">4.1 초단기실황조회
+							
+							
+	                            
+	                                
+	                                    <span style="margin-left:auto;"><button class="btn btn_00" onClick="onClickLoginBtn()">API 활용신청</button></span>
+	                                
+	                                
+	                            
+	<!--                            <span><button class="btn03" th:if="${apiChildrenData.seqRoute == 5}" th:onclick="onClickGenerateUrl(796)">URL 발행</button></span>-->
+	                        </h4>
+	                            <p class="flex-beetwen" style="min-height: 50px;">
+	                                <a href="https://apihub.kma.go.kr/api/typ02/openApi/VilageFcstInfoService_2.0/getUltraSrtNcst?pageNo=1&amp;numOfRows=1000&amp;dataType=XML&amp;base_date=20210628&amp;base_time=0600&amp;nx=55&amp;ny=127&amp;authKey=인증키입력" class="url-link" target="_blank">
+	                                    https://apihub.kma.go.kr/api/typ02/openApi/VilageFcstInfoService_2.0/getUltraSrtNcst?pageNo=1&amp;numOfRows=1000&amp;dataType=XML&amp;base_date=20210628&amp;base_time=0600&amp;nx=55&amp;ny=127&authKey={인증키입력}
+	                                </a><span><button type="button" class="btn btn_01" style="width: 90px;" onclick="copySampleUrl(event)">URL복사</button></span>
+	                            </p>
+                        
+                    
+                    <!-- API sub sampleUrls end -->
+                    <!-- API sub reqParams -->
+                    
+                        <h5 class="mt40">요청인자</h4>
+                        <div class="Tbl-wrap mt40">
+                            <table class="Tbl">
+                                <caption>데이터 기본 정보</caption>
+                                <colgroup>
+                                    <col width="15%">
+                                    <col width="15%">
+                                    <col width="70%">
+                                </colgroup>
+                                <thead>
+                                <tr>
+                                    <th>인자명</th>
+                                    <th>의미</th>
+                                    <th>설명</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr>
+                                    <td><p class="txt">pageNo</p></td>
+                                    <td><p class="txt">페이지 번호</p></td>
+                                    <td><p class="txt">페이지번호</p></td>
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">numOfRows</p></td>
+                                    <td><p class="txt">한 페이지 결과 수</p></td>
+                                    <td><p class="txt">한 페이지 결과 수</p></td>
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">dataType</p></td>
+                                    <td><p class="txt">응답자료형식</p></td>
+                                    <td><p class="txt">요청자료형식(XML/JSON) Default: XML</p></td>
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">base_date</p></td>
+                                    <td><p class="txt">발표일자</p></td>
+                                    <td><p class="txt">‘21년 6월 28일 발표</p></td>
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">base_time</p></td>
+                                    <td><p class="txt">발표시각</p></td>
+                                    <td><p class="txt">06시 발표(정시단위)</p></td>
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">nx</p></td>
+                                    <td><p class="txt">예보지점 X 좌표</p></td>
+                                    <td><p class="txt">예보지점의 X 좌표값</p></td>
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">ny</p></td>
+                                    <td><p class="txt">예보지점 Y 좌표</p></td>
+                                    <td><p class="txt">예보지점의 Y 좌표값</p></td>
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">authKey</p></td>
+                                    <td><p class="txt">인증키</p></td>
+                                    <td><p class="txt">발급된 API 인증키</p></td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    
+                    <!-- API sub reqParams end -->
+                    <!-- API sub resParams -->
+                    
+                        <h5 class="mt40">출력결과</h4>
+                        <div class="Tbl-wrap">
+                            <table class="Tbl">
+                                <caption>출력결과</caption>
+                                <colgroup>
+                                    <col width="15%">
+                                    <col width="35%">
+                                    <col width="15%">
+                                    <col width="35%">
+                                </colgroup>
+                                <thead>
+                                <tr>
+                                    <th>변수명</th>
+                                    <th>의미(단위)</th>
+                                    <th>변수명</th>
+                                    <th>의미(단위)</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr>
+                                    <td><p class="txt">resultCode</p></td>
+                                    <td><p class="txt">결과코드</p></td>
+                                    <td ><p class="txt">resultMsg</p></td>
+                                    
+                                    <td ><p class="txt">결과메시지</p></td>
+                                    
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">numOfRows</p></td>
+                                    <td><p class="txt">한 페이지 결과 수</p></td>
+                                    <td ><p class="txt">pageNo</p></td>
+                                    
+                                    <td ><p class="txt">페이지 번호</p></td>
+                                    
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">totalCount</p></td>
+                                    <td><p class="txt">전체 결과 수</p></td>
+                                    <td ><p class="txt">dataType</p></td>
+                                    
+                                    <td ><p class="txt">데이터 타입</p></td>
+                                    
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">baseDate</p></td>
+                                    <td><p class="txt">발표일자</p></td>
+                                    <td ><p class="txt">baseTime</p></td>
+                                    
+                                    <td ><p class="txt">발표시각</p></td>
+                                    
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">nx</p></td>
+                                    <td><p class="txt">예보지점 X 좌표</p></td>
+                                    <td ><p class="txt">ny</p></td>
+                                    
+                                    <td ><p class="txt">예보지점 Y 좌표</p></td>
+                                    
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">category</p></td>
+                                    <td><p class="txt">자료구분코드</p></td>
+                                    <td ><p class="txt">obsrValue</p></td>
+                                    
+                                    <td ><p class="txt">실황 값</p></td>
+                                    
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    
+                    <!-- API sub resParams end -->
+                
+                 <!--   <h3 th:utext="${apiChildrenData.getApiNm()}">K10. 자동기상관측장비(AWS) 매분자료</h3>
+                    <p class="tit-cont02" th:utext="${apiChildrenData.getApiDesc()}">자동기상관측장비(AWS, Automatic Weather System)는 지상의 기온, 강수, 풍향·속 등을 측정하는 관측장비로 전국 약 600여 지점에 설치되어 있습니다.<br/>
+                        자료 생산주기는 분, 시간, 일, 월,연이며,1997년 이후 자료를 보유(지점마다 상이함) 중입니다.</p> -->
+                    <!-- API sub list apiDescList-->
+                    
+
+
+                    <!-- API sub dscApiList end -->
+                    <!-- API sub AttachFiles -->
+                    
+                    <!-- API sub AttachFiles end -->
+                    <!-- API sub sampleUrls -->
+                    
+                       
+                        
+                    		<!-- 2024.02.06 주경돈 주무관요청 - api표현방식 수정 -->
+							
+							
+							
+																
+								
+								<h4 class="mt40 flex-beetwen">4.2 초단기예보조회
+							
+							
+	                            
+	                                
+	                                    <span style="margin-left:auto;"><button class="btn btn_00" onClick="onClickLoginBtn()">API 활용신청</button></span>
+	                                
+	                                
+	                            
+	<!--                            <span><button class="btn03" th:if="${apiChildrenData.seqRoute == 5}" th:onclick="onClickGenerateUrl(797)">URL 발행</button></span>-->
+	                        </h4>
+	                            <p class="flex-beetwen" style="min-height: 50px;">
+	                                <a href="https://apihub.kma.go.kr/api/typ02/openApi/VilageFcstInfoService_2.0/getUltraSrtFcst?pageNo=1&amp;numOfRows=1000&amp;dataType=XML&amp;base_date=20210628&amp;base_time=0630&amp;nx=55&amp;ny=127&amp;authKey=인증키입력" class="url-link" target="_blank">
+	                                    https://apihub.kma.go.kr/api/typ02/openApi/VilageFcstInfoService_2.0/getUltraSrtFcst?pageNo=1&numOfRows=1000&dataType=XML&base_date=20210628&base_time=0630&nx=55&ny=127&authKey={인증키입력}
+	                                </a><span><button type="button" class="btn btn_01" style="width: 90px;" onclick="copySampleUrl(event)">URL복사</button></span>
+	                            </p>
+                        
+                    
+                    <!-- API sub sampleUrls end -->
+                    <!-- API sub reqParams -->
+                    
+                        <h5 class="mt40">요청인자</h4>
+                        <div class="Tbl-wrap mt40">
+                            <table class="Tbl">
+                                <caption>데이터 기본 정보</caption>
+                                <colgroup>
+                                    <col width="15%">
+                                    <col width="15%">
+                                    <col width="70%">
+                                </colgroup>
+                                <thead>
+                                <tr>
+                                    <th>인자명</th>
+                                    <th>의미</th>
+                                    <th>설명</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr>
+                                    <td><p class="txt">pageNo</p></td>
+                                    <td><p class="txt">페이지 번호</p></td>
+                                    <td><p class="txt">페이지번호</p></td>
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">numOfRows</p></td>
+                                    <td><p class="txt">한 페이지 결과 수</p></td>
+                                    <td><p class="txt">한 페이지 결과 수</p></td>
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">dataType</p></td>
+                                    <td><p class="txt">응답자료형식</p></td>
+                                    <td><p class="txt">요청자료형식(XML/JSON) Default: XML</p></td>
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">base_date</p></td>
+                                    <td><p class="txt">발표일자</p></td>
+                                    <td><p class="txt">‘21년 6월 28일 발표</p></td>
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">base_time</p></td>
+                                    <td><p class="txt">발표시각</p></td>
+                                    <td><p class="txt">06시30분 발표(30분 단위)</p></td>
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">nx</p></td>
+                                    <td><p class="txt">예보지점 X 좌표</p></td>
+                                    <td><p class="txt">예보지점 X 좌표값</p></td>
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">ny</p></td>
+                                    <td><p class="txt">예보지점 Y 좌표</p></td>
+                                    <td><p class="txt">예보지점 Y 좌표값</p></td>
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">authKey</p></td>
+                                    <td><p class="txt">인증키</p></td>
+                                    <td><p class="txt">발급된 API 인증키</p></td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    
+                    <!-- API sub reqParams end -->
+                    <!-- API sub resParams -->
+                    
+                        <h5 class="mt40">출력결과</h4>
+                        <div class="Tbl-wrap">
+                            <table class="Tbl">
+                                <caption>출력결과</caption>
+                                <colgroup>
+                                    <col width="15%">
+                                    <col width="35%">
+                                    <col width="15%">
+                                    <col width="35%">
+                                </colgroup>
+                                <thead>
+                                <tr>
+                                    <th>변수명</th>
+                                    <th>의미(단위)</th>
+                                    <th>변수명</th>
+                                    <th>의미(단위)</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr>
+                                    <td><p class="txt">resultCode</p></td>
+                                    <td><p class="txt">결과코드</p></td>
+                                    <td ><p class="txt">resultMsg</p></td>
+                                    
+                                    <td ><p class="txt">결과메시지</p></td>
+                                    
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">numOfRows</p></td>
+                                    <td><p class="txt">한 페이지 결과 수</p></td>
+                                    <td ><p class="txt">pageNo</p></td>
+                                    
+                                    <td ><p class="txt">페이지 번호</p></td>
+                                    
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">totalCount</p></td>
+                                    <td><p class="txt">전체 결과 수</p></td>
+                                    <td ><p class="txt">dataType</p></td>
+                                    
+                                    <td ><p class="txt">데이터 타입</p></td>
+                                    
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">baseDate</p></td>
+                                    <td><p class="txt">발표일자</p></td>
+                                    <td ><p class="txt">baseTime</p></td>
+                                    
+                                    <td ><p class="txt">발표시각</p></td>
+                                    
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">nx</p></td>
+                                    <td><p class="txt">예보지점 X 좌표</p></td>
+                                    <td ><p class="txt">ny</p></td>
+                                    
+                                    <td ><p class="txt">예보지점 Y 좌표</p></td>
+                                    
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">category</p></td>
+                                    <td><p class="txt">자료구분코드</p></td>
+                                    <td ><p class="txt">fcstDate</p></td>
+                                    
+                                    <td ><p class="txt">예측일자</p></td>
+                                    
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">fcstTime</p></td>
+                                    <td><p class="txt">예측시간</p></td>
+                                    <td ><p class="txt">fcstValue</p></td>
+                                    
+                                    <td ><p class="txt">예보 값</p></td>
+                                    
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    
+                    <!-- API sub resParams end -->
+                
+                 <!--   <h3 th:utext="${apiChildrenData.getApiNm()}">K10. 자동기상관측장비(AWS) 매분자료</h3>
+                    <p class="tit-cont02" th:utext="${apiChildrenData.getApiDesc()}">자동기상관측장비(AWS, Automatic Weather System)는 지상의 기온, 강수, 풍향·속 등을 측정하는 관측장비로 전국 약 600여 지점에 설치되어 있습니다.<br/>
+                        자료 생산주기는 분, 시간, 일, 월,연이며,1997년 이후 자료를 보유(지점마다 상이함) 중입니다.</p> -->
+                    <!-- API sub list apiDescList-->
+                    
+
+
+                    <!-- API sub dscApiList end -->
+                    <!-- API sub AttachFiles -->
+                    
+                    <!-- API sub AttachFiles end -->
+                    <!-- API sub sampleUrls -->
+                    
+                       
+                        
+                    		<!-- 2024.02.06 주경돈 주무관요청 - api표현방식 수정 -->
+							
+							
+							
+																
+								
+								<h4 class="mt40 flex-beetwen">4.3 단기예보조회
+							
+							
+	                            
+	                                
+	                                    <span style="margin-left:auto;"><button class="btn btn_00" onClick="onClickLoginBtn()">API 활용신청</button></span>
+	                                
+	                                
+	                            
+	<!--                            <span><button class="btn03" th:if="${apiChildrenData.seqRoute == 5}" th:onclick="onClickGenerateUrl(798)">URL 발행</button></span>-->
+	                        </h4>
+	                            <p class="flex-beetwen" style="min-height: 50px;">
+	                                <a href="https://apihub.kma.go.kr/api/typ02/openApi/VilageFcstInfoService_2.0/getVilageFcst?pageNo=1&amp;numOfRows=1000&amp;dataType=XML&amp;base_date=20210628&amp;base_time=0500&amp;nx=55&amp;ny=127&amp;authKey=인증키입력" class="url-link" target="_blank">
+	                                    https://apihub.kma.go.kr/api/typ02/openApi/VilageFcstInfoService_2.0/getVilageFcst?pageNo=1&numOfRows=1000&dataType=XML&base_date=20210628&base_time=0500&nx=55&ny=127&authKey={인증키입력}
+	                                </a><span><button type="button" class="btn btn_01" style="width: 90px;" onclick="copySampleUrl(event)">URL복사</button></span>
+	                            </p>
+                        
+                    
+                    <!-- API sub sampleUrls end -->
+                    <!-- API sub reqParams -->
+                    
+                        <h5 class="mt40">요청인자</h4>
+                        <div class="Tbl-wrap mt40">
+                            <table class="Tbl">
+                                <caption>데이터 기본 정보</caption>
+                                <colgroup>
+                                    <col width="15%">
+                                    <col width="15%">
+                                    <col width="70%">
+                                </colgroup>
+                                <thead>
+                                <tr>
+                                    <th>인자명</th>
+                                    <th>의미</th>
+                                    <th>설명</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr>
+                                    <td><p class="txt">pageNo</p></td>
+                                    <td><p class="txt">페이지 번호</p></td>
+                                    <td><p class="txt">페이지번호</p></td>
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">numOfRows</p></td>
+                                    <td><p class="txt">한 페이지 결과 수</p></td>
+                                    <td><p class="txt">한 페이지 결과 수</p></td>
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">dataType</p></td>
+                                    <td><p class="txt">응답자료형식</p></td>
+                                    <td><p class="txt">요청자료형식(XML/JSON) Default: XML</p></td>
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">base_date</p></td>
+                                    <td><p class="txt">발표일자</p></td>
+                                    <td><p class="txt">‘21년 6월 28일발표</p></td>
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">base_time</p></td>
+                                    <td><p class="txt">발표시각</p></td>
+                                    <td><p class="txt">05시 발표</p></td>
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">nx</p></td>
+                                    <td><p class="txt">예보지점 X 좌표</p></td>
+                                    <td><p class="txt">예보지점의 X 좌표값</p></td>
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">ny</p></td>
+                                    <td><p class="txt">예보지점 Y 좌표</p></td>
+                                    <td><p class="txt">예보지점의 Y 좌표값</p></td>
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">authKey</p></td>
+                                    <td><p class="txt">인증키</p></td>
+                                    <td><p class="txt">발급된 API 인증키</p></td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    
+                    <!-- API sub reqParams end -->
+                    <!-- API sub resParams -->
+                    
+                        <h5 class="mt40">출력결과</h4>
+                        <div class="Tbl-wrap">
+                            <table class="Tbl">
+                                <caption>출력결과</caption>
+                                <colgroup>
+                                    <col width="15%">
+                                    <col width="35%">
+                                    <col width="15%">
+                                    <col width="35%">
+                                </colgroup>
+                                <thead>
+                                <tr>
+                                    <th>변수명</th>
+                                    <th>의미(단위)</th>
+                                    <th>변수명</th>
+                                    <th>의미(단위)</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr>
+                                    <td><p class="txt">resultCode</p></td>
+                                    <td><p class="txt">결과코드</p></td>
+                                    <td ><p class="txt">resultMsg</p></td>
+                                    
+                                    <td ><p class="txt">결과메시지</p></td>
+                                    
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">numOfRows</p></td>
+                                    <td><p class="txt">한 페이지 결과 수</p></td>
+                                    <td ><p class="txt">pageNo</p></td>
+                                    
+                                    <td ><p class="txt">페이지 번호</p></td>
+                                    
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">totalCount</p></td>
+                                    <td><p class="txt">전체 결과 수</p></td>
+                                    <td ><p class="txt">dataType</p></td>
+                                    
+                                    <td ><p class="txt">데이터 타입</p></td>
+                                    
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">baseDate</p></td>
+                                    <td><p class="txt">발표일자</p></td>
+                                    <td ><p class="txt">baseTime</p></td>
+                                    
+                                    <td ><p class="txt">발표시각</p></td>
+                                    
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">fcstDate</p></td>
+                                    <td><p class="txt">예보일자</p></td>
+                                    <td ><p class="txt">fcstTime</p></td>
+                                    
+                                    <td ><p class="txt">예보시각</p></td>
+                                    
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">category</p></td>
+                                    <td><p class="txt">자료구분문자</p></td>
+                                    <td ><p class="txt">fcstValue</p></td>
+                                    
+                                    <td ><p class="txt">예보 값</p></td>
+                                    
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">nx</p></td>
+                                    <td><p class="txt">예보지점 X 좌표</p></td>
+                                    <td ><p class="txt">ny</p></td>
+                                    
+                                    <td ><p class="txt">예보지점 Y 좌표</p></td>
+                                    
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    
+                    <!-- API sub resParams end -->
+                
+                 <!--   <h3 th:utext="${apiChildrenData.getApiNm()}">K10. 자동기상관측장비(AWS) 매분자료</h3>
+                    <p class="tit-cont02" th:utext="${apiChildrenData.getApiDesc()}">자동기상관측장비(AWS, Automatic Weather System)는 지상의 기온, 강수, 풍향·속 등을 측정하는 관측장비로 전국 약 600여 지점에 설치되어 있습니다.<br/>
+                        자료 생산주기는 분, 시간, 일, 월,연이며,1997년 이후 자료를 보유(지점마다 상이함) 중입니다.</p> -->
+                    <!-- API sub list apiDescList-->
+                    
+
+
+                    <!-- API sub dscApiList end -->
+                    <!-- API sub AttachFiles -->
+                    
+                    <!-- API sub AttachFiles end -->
+                    <!-- API sub sampleUrls -->
+                    
+                       
+                        
+                    		<!-- 2024.02.06 주경돈 주무관요청 - api표현방식 수정 -->
+							
+							
+							
+																
+								
+								<h4 class="mt40 flex-beetwen">4.4 예보버전조회
+							
+							
+	                            
+	                                
+	                                    <span style="margin-left:auto;"><button class="btn btn_00" onClick="onClickLoginBtn()">API 활용신청</button></span>
+	                                
+	                                
+	                            
+	<!--                            <span><button class="btn03" th:if="${apiChildrenData.seqRoute == 5}" th:onclick="onClickGenerateUrl(799)">URL 발행</button></span>-->
+	                        </h4>
+	                            <p class="flex-beetwen" style="min-height: 50px;">
+	                                <a href="https://apihub.kma.go.kr/api/typ02/openApi/VilageFcstInfoService_2.0/getFcstVersion?pageNo=1&amp;numOfRows=1000&amp;dataType=XML&amp;ftype=ODAM&amp;basedatetime=202106280800&amp;authKey=인증키입력" class="url-link" target="_blank">
+	                                    https://apihub.kma.go.kr/api/typ02/openApi/VilageFcstInfoService_2.0/getFcstVersion?pageNo=1&numOfRows=1000&dataType=XML&ftype=ODAM&basedatetime=202106280800&authKey={인증키입력}
+	                                </a><span><button type="button" class="btn btn_01" style="width: 90px;" onclick="copySampleUrl(event)">URL복사</button></span>
+	                            </p>
+                        
+                    
+                    <!-- API sub sampleUrls end -->
+                    <!-- API sub reqParams -->
+                    
+                        <h5 class="mt40">요청인자</h4>
+                        <div class="Tbl-wrap mt40">
+                            <table class="Tbl">
+                                <caption>데이터 기본 정보</caption>
+                                <colgroup>
+                                    <col width="15%">
+                                    <col width="15%">
+                                    <col width="70%">
+                                </colgroup>
+                                <thead>
+                                <tr>
+                                    <th>인자명</th>
+                                    <th>의미</th>
+                                    <th>설명</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr>
+                                    <td><p class="txt">pageNo</p></td>
+                                    <td><p class="txt">페이지 번호</p></td>
+                                    <td><p class="txt">페이지번호</p></td>
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">numOfRows</p></td>
+                                    <td><p class="txt">한 페이지 결과 수</p></td>
+                                    <td><p class="txt">한 페이지 결과 수</p></td>
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">dataType</p></td>
+                                    <td><p class="txt">응답자료형식</p></td>
+                                    <td><p class="txt">요청자료형식(XML/JSON) Default: XML</p></td>
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">ftype</p></td>
+                                    <td><p class="txt">파일구분</p></td>
+                                    <td><p class="txt">파일구분 -ODAM: 동네예보실황 -VSRT: 동네예보초단기 -SHRT: 동네예보단기</p></td>
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">basedatetime</p></td>
+                                    <td><p class="txt">발표일시분</p></td>
+                                    <td><p class="txt">각각의 base_time 로 검색</p></td>
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">authKey</p></td>
+                                    <td><p class="txt">인증키</p></td>
+                                    <td><p class="txt">발급된 API 인증키</p></td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    
+                    <!-- API sub reqParams end -->
+                    <!-- API sub resParams -->
+                    
+                        <h5 class="mt40">출력결과</h4>
+                        <div class="Tbl-wrap">
+                            <table class="Tbl">
+                                <caption>출력결과</caption>
+                                <colgroup>
+                                    <col width="15%">
+                                    <col width="35%">
+                                    <col width="15%">
+                                    <col width="35%">
+                                </colgroup>
+                                <thead>
+                                <tr>
+                                    <th>변수명</th>
+                                    <th>의미(단위)</th>
+                                    <th>변수명</th>
+                                    <th>의미(단위)</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr>
+                                    <td><p class="txt">resultCode</p></td>
+                                    <td><p class="txt">결과코드</p></td>
+                                    <td ><p class="txt">resultMsg</p></td>
+                                    
+                                    <td ><p class="txt">결과메시지</p></td>
+                                    
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">numOfRows</p></td>
+                                    <td><p class="txt">한 페이지 결과 수</p></td>
+                                    <td ><p class="txt">pageNo</p></td>
+                                    
+                                    <td ><p class="txt">페이지 번호</p></td>
+                                    
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">totalCount</p></td>
+                                    <td><p class="txt">전체 결과 수</p></td>
+                                    <td ><p class="txt">dataType</p></td>
+                                    
+                                    <td ><p class="txt">데이터 타입</p></td>
+                                    
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">version</p></td>
+                                    <td><p class="txt">파일버전</p></td>
+                                    <td ><p class="txt">filetype</p></td>
+                                    
+                                    <td ><p class="txt">파일구분</p></td>
+                                    
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    
+                    <!-- API sub resParams end -->
+                
+                <!-- Api Sub List end -->
+
+                <!-- API sub resParams end -->
+            
+                <h3>5. (그래픽) 동네예보 분포도</h3>
+                <p class="tit-cont02"></p>
+                <!-- API sub list apiDescList-->
+                
+                <!-- API sub dscApiList end -->
+                <!-- API sub AttachFiles -->
+                
+                <!-- API sub AttachFiles end -->
+                <!-- API sub sampleUrls -->
+                
+                <!-- API sub sampleUrls end -->
+                <!-- API sub reqParams -->
+                
+                <!-- API sub reqParams end -->
+                <!-- API sub resParams -->
+                
+
+
+                <!-- API sub list -->
+                
+                 <!--   <h3 th:utext="${apiChildrenData.getApiNm()}">K10. 자동기상관측장비(AWS) 매분자료</h3>
+                    <p class="tit-cont02" th:utext="${apiChildrenData.getApiDesc()}">자동기상관측장비(AWS, Automatic Weather System)는 지상의 기온, 강수, 풍향·속 등을 측정하는 관측장비로 전국 약 600여 지점에 설치되어 있습니다.<br/>
+                        자료 생산주기는 분, 시간, 일, 월,연이며,1997년 이후 자료를 보유(지점마다 상이함) 중입니다.</p> -->
+                    <!-- API sub list apiDescList-->
+                    
+
+
+                    <!-- API sub dscApiList end -->
+                    <!-- API sub AttachFiles -->
+                    
+                    <!-- API sub AttachFiles end -->
+                    <!-- API sub sampleUrls -->
+                    
+                       
+                        
+                    		<!-- 2024.02.06 주경돈 주무관요청 - api표현방식 수정 -->
+							
+								<h4 class="mt40 flex-beetwen">
+							
+							
+							
+	                            
+	                                
+	                                    <span style="margin-left:auto;"><button class="btn btn_00" onClick="onClickLoginBtn()">API 활용신청</button></span>
+	                                
+	                                
+	                            
+	<!--                            <span><button class="btn03" th:if="${apiChildrenData.seqRoute == 5}" th:onclick="onClickGenerateUrl(11656)">URL 발행</button></span>-->
+	                        </h4>
+	                            <p class="flex-beetwen" style="min-height: 50px;">
+	                                <a href="https://apihub.kma.go.kr/api/typ03/cgi/dfs/nph-dfs_shrt_ana_5d?data0=GEMD&amp;data1=PTY&amp;tm_fc=202607080500&amp;tm_ef=202607082000&amp;dtm=H0&amp;map=G1&amp;mask=M&amp;color=E&amp;size=600&amp;effect=NTL&amp;overlay=S&amp;zoom_rate=2&amp;zoom_level=0&amp;zoom_x=0000000&amp;zoom_y=0000000&amp;auto_man=m&amp;mode=I&amp;interval=1&amp;rand=1412&amp;authKey=인증키입력" class="url-link" target="_blank">
+	                                    https://apihub.kma.go.kr/api/typ03/cgi/dfs/nph-dfs_shrt_ana_5d?data0=GEMD&amp;data1=PTY&amp;tm_fc=202607080500&amp;tm_ef=202607082000&amp;dtm=H0&amp;map=G1&amp;mask=M&amp;color=E&amp;size=600&amp;effect=NTL&amp;overlay=S&amp;zoom_rate=2&amp;zoom_level=0&amp;zoom_x=0000000&amp;zoom_y=0000000&amp;auto_man=m&amp;mode=I&amp;interval=1&amp;rand=1412&authKey={인증키입력}
+	                                </a><span><button type="button" class="btn btn_01" style="width: 90px;" onclick="copySampleUrl(event)">URL복사</button></span>
+	                            </p>
+                        
+                    
+                    <!-- API sub sampleUrls end -->
+                    <!-- API sub reqParams -->
+                    
+                        <h5 class="mt40">요청인자</h4>
+                        <div class="Tbl-wrap mt40">
+                            <table class="Tbl">
+                                <caption>데이터 기본 정보</caption>
+                                <colgroup>
+                                    <col width="15%">
+                                    <col width="15%">
+                                    <col width="70%">
+                                </colgroup>
+                                <thead>
+                                <tr>
+                                    <th>인자명</th>
+                                    <th>의미</th>
+                                    <th>설명</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr>
+                                    <td><p class="txt">data0</p></td>
+                                    <td><p class="txt">자료 종류</p></td>
+                                    <td><p class="txt"></p></td>
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">data1</p></td>
+                                    <td><p class="txt">변수 종류</p></td>
+                                    <td><p class="txt"></p></td>
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">tm_fc</p></td>
+                                    <td><p class="txt">기준시간1(발표시간)</p></td>
+                                    <td><p class="txt">UTC</p></td>
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">tm_ef</p></td>
+                                    <td><p class="txt">기준시간2(예측시간)</p></td>
+                                    <td><p class="txt">KST(한국시간)</p></td>
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">dtm</p></td>
+                                    <td><p class="txt">시간이동단위 및 이동값</p></td>
+                                    <td><p class="txt"></p></td>
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">map</p></td>
+                                    <td><p class="txt">지도 종류</p></td>
+                                    <td><p class="txt"></p></td>
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">mask</p></td>
+                                    <td><p class="txt">이미지 내륙구분 </p></td>
+                                    <td><p class="txt"></p></td>
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">color</p></td>
+                                    <td><p class="txt">이미지 색상표</p></td>
+                                    <td><p class="txt"></p></td>
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">size</p></td>
+                                    <td><p class="txt">이미지 크기</p></td>
+                                    <td><p class="txt"></p></td>
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">effect</p></td>
+                                    <td><p class="txt">이미지 효과</p></td>
+                                    <td><p class="txt"></p></td>
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">overlay</p></td>
+                                    <td><p class="txt">이미지 중첩</p></td>
+                                    <td><p class="txt"></p></td>
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">zoom_rate</p></td>
+                                    <td><p class="txt">확대율</p></td>
+                                    <td><p class="txt"></p></td>
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">auto_man</p></td>
+                                    <td><p class="txt">자동(a), 수동(m)</p></td>
+                                    <td><p class="txt"></p></td>
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">mode</p></td>
+                                    <td><p class="txt">표출양식</p></td>
+                                    <td><p class="txt">html(H), image(I), auto(A), file(F)</p></td>
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">interval</p></td>
+                                    <td><p class="txt">1시간 간격 표출</p></td>
+                                    <td><p class="txt"></p></td>
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">rand</p></td>
+                                    <td><p class="txt">난수: 이미지 재생성 시간간격(분)</p></td>
+                                    <td><p class="txt"></p></td>
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">authKey</p></td>
+                                    <td><p class="txt">인증키</p></td>
+                                    <td><p class="txt">발급된 API 인증키</p></td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    
+                    <!-- API sub reqParams end -->
+                    <!-- API sub resParams -->
+                    
+                    <!-- API sub resParams end -->
+                
+                <!-- Api Sub List end -->
+
+                <!-- API sub resParams end -->
+            
+                <h3>6. (그래픽) 초단기예보 분포도</h3>
+                <p class="tit-cont02"></p>
+                <!-- API sub list apiDescList-->
+                
+                <!-- API sub dscApiList end -->
+                <!-- API sub AttachFiles -->
+                
+                <!-- API sub AttachFiles end -->
+                <!-- API sub sampleUrls -->
+                
+                <!-- API sub sampleUrls end -->
+                <!-- API sub reqParams -->
+                
+                <!-- API sub reqParams end -->
+                <!-- API sub resParams -->
+                
+
+
+                <!-- API sub list -->
+                
+                 <!--   <h3 th:utext="${apiChildrenData.getApiNm()}">K10. 자동기상관측장비(AWS) 매분자료</h3>
+                    <p class="tit-cont02" th:utext="${apiChildrenData.getApiDesc()}">자동기상관측장비(AWS, Automatic Weather System)는 지상의 기온, 강수, 풍향·속 등을 측정하는 관측장비로 전국 약 600여 지점에 설치되어 있습니다.<br/>
+                        자료 생산주기는 분, 시간, 일, 월,연이며,1997년 이후 자료를 보유(지점마다 상이함) 중입니다.</p> -->
+                    <!-- API sub list apiDescList-->
+                    
+
+
+                    <!-- API sub dscApiList end -->
+                    <!-- API sub AttachFiles -->
+                    
+                    <!-- API sub AttachFiles end -->
+                    <!-- API sub sampleUrls -->
+                    
+                       
+                        
+                    		<!-- 2024.02.06 주경돈 주무관요청 - api표현방식 수정 -->
+							
+								<h4 class="mt40 flex-beetwen">
+							
+							
+							
+	                            
+	                                
+	                                    <span style="margin-left:auto;"><button class="btn btn_00" onClick="onClickLoginBtn()">API 활용신청</button></span>
+	                                
+	                                
+	                            
+	<!--                            <span><button class="btn03" th:if="${apiChildrenData.seqRoute == 5}" th:onclick="onClickGenerateUrl(760)">URL 발행</button></span>-->
+	                        </h4>
+	                            <p class="flex-beetwen" style="min-height: 50px;">
+	                                <a href="https://apihub.kma.go.kr/api/typ03/cgi/dfs/nph-dfs_vsrt_ana2?data0=GEMD&amp;tm_fc=202212221420&amp;data1=SKY&amp;tm_ef=202212221500&amp;dtm=H0&amp;map=G1&amp;mask=M&amp;color=E&amp;size=600&amp;effect=GTL&amp;overlay=S&amp;zoom_rate=2&amp;zoom_level=0&amp;zoom_x=0000000&amp;zoom_y=0000000&amp;auto_man=m&amp;mode=I&amp;rand=2937&amp;authKey=인증키입력" class="url-link" target="_blank">
+	                                    https://apihub.kma.go.kr/api/typ03/cgi/dfs/nph-dfs_vsrt_ana2?data0=GEMD&tm_fc=202212221420&data1=SKY&tm_ef=202212221500&dtm=H0&map=G1&mask=M&color=E&size=600&effect=GTL&overlay=S&zoom_rate=2&zoom_level=0&zoom_x=0000000&zoom_y=0000000&auto_man=m&mode=I&rand=2937&authKey={인증키입력}
+	                                </a><span><button type="button" class="btn btn_01" style="width: 90px;" onclick="copySampleUrl(event)">URL복사</button></span>
+	                            </p>
+                        
+                    
+                    <!-- API sub sampleUrls end -->
+                    <!-- API sub reqParams -->
+                    
+                        <h5 class="mt40">요청인자</h4>
+                        <div class="Tbl-wrap mt40">
+                            <table class="Tbl">
+                                <caption>데이터 기본 정보</caption>
+                                <colgroup>
+                                    <col width="15%">
+                                    <col width="15%">
+                                    <col width="70%">
+                                </colgroup>
+                                <thead>
+                                <tr>
+                                    <th>인자명</th>
+                                    <th>의미</th>
+                                    <th>설명</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr>
+                                    <td><p class="txt">tm_fc</p></td>
+                                    <td><p class="txt">기준시간1</p></td>
+                                    <td><p class="txt"> </p></td>
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">data0</p></td>
+                                    <td><p class="txt">자료 종류</p></td>
+                                    <td><p class="txt"> </p></td>
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">data1</p></td>
+                                    <td><p class="txt">변수 종류</p></td>
+                                    <td><p class="txt"> </p></td>
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">tm_ef</p></td>
+                                    <td><p class="txt">기준시간2</p></td>
+                                    <td><p class="txt"> </p></td>
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">dtm</p></td>
+                                    <td><p class="txt">시간이동단위 및 이동값</p></td>
+                                    <td><p class="txt"> </p></td>
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">map</p></td>
+                                    <td><p class="txt">지도 종류</p></td>
+                                    <td><p class="txt"> </p></td>
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">mask</p></td>
+                                    <td><p class="txt">이미지 내륙구분 </p></td>
+                                    <td><p class="txt"> </p></td>
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">color</p></td>
+                                    <td><p class="txt">이미지 색상표</p></td>
+                                    <td><p class="txt"> </p></td>
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">size</p></td>
+                                    <td><p class="txt">이미지 크기</p></td>
+                                    <td><p class="txt"> </p></td>
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">effect</p></td>
+                                    <td><p class="txt">이미지 효과</p></td>
+                                    <td><p class="txt"> </p></td>
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">overlay</p></td>
+                                    <td><p class="txt">이미지 중첩</p></td>
+                                    <td><p class="txt"> </p></td>
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">auto_man</p></td>
+                                    <td><p class="txt">자동(a), 수동(m)</p></td>
+                                    <td><p class="txt"> </p></td>
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">mode</p></td>
+                                    <td><p class="txt">표출양식</p></td>
+                                    <td><p class="txt"> </p></td>
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">rand</p></td>
+                                    <td><p class="txt">난수: 이미지 재생성 시간간격(분)</p></td>
+                                    <td><p class="txt"> </p></td>
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">authKey</p></td>
+                                    <td><p class="txt">인증키</p></td>
+                                    <td><p class="txt">발급된 API 인증키</p></td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    
+                    <!-- API sub reqParams end -->
+                    <!-- API sub resParams -->
+                    
+                    <!-- API sub resParams end -->
+                
+                <!-- Api Sub List end -->
+
+                <!-- API sub resParams end -->
+            
+                <h3>7. 동네예보 격자데이터 위경도 조회</h3>
+                <p class="tit-cont02"></p>
+                <!-- API sub list apiDescList-->
+                
+                <!-- API sub dscApiList end -->
+                <!-- API sub AttachFiles -->
+                
+                <!-- API sub AttachFiles end -->
+                <!-- API sub sampleUrls -->
+                
+                <!-- API sub sampleUrls end -->
+                <!-- API sub reqParams -->
+                
+                <!-- API sub reqParams end -->
+                <!-- API sub resParams -->
+                
+
+
+                <!-- API sub list -->
+                
+                 <!--   <h3 th:utext="${apiChildrenData.getApiNm()}">K10. 자동기상관측장비(AWS) 매분자료</h3>
+                    <p class="tit-cont02" th:utext="${apiChildrenData.getApiDesc()}">자동기상관측장비(AWS, Automatic Weather System)는 지상의 기온, 강수, 풍향·속 등을 측정하는 관측장비로 전국 약 600여 지점에 설치되어 있습니다.<br/>
+                        자료 생산주기는 분, 시간, 일, 월,연이며,1997년 이후 자료를 보유(지점마다 상이함) 중입니다.</p> -->
+                    <!-- API sub list apiDescList-->
+                    
+
+
+                    <!-- API sub dscApiList end -->
+                    <!-- API sub AttachFiles -->
+                    
+                    <!-- API sub AttachFiles end -->
+                    <!-- API sub sampleUrls -->
+                    
+                       
+                        
+                    		<!-- 2024.02.06 주경돈 주무관요청 - api표현방식 수정 -->
+							
+							
+							
+																
+								
+								<h4 class="mt40 flex-beetwen">7.1 동네예보 격자데이터 위경도 조회
+							
+							
+	                            
+	                                
+	                                    <span style="margin-left:auto;"><button class="btn btn_00" onClick="onClickLoginBtn()">API 활용신청</button></span>
+	                                
+	                                
+	                            
+	<!--                            <span><button class="btn03" th:if="${apiChildrenData.seqRoute == 5}" th:onclick="onClickGenerateUrl(1117)">URL 발행</button></span>-->
+	                        </h4>
+	                            <p class="flex-beetwen" style="min-height: 50px;">
+	                                <a href="https://apihub.kma.go.kr/api/typ01/cgi-bin/url/nph-dfs_latlon_api?fct=SHRT&amp;latlon=lon&amp;disp=A&amp;authKey=인증키입력" class="url-link" target="_blank">
+	                                    https://apihub.kma.go.kr/api/typ01/cgi-bin/url/nph-dfs_latlon_api?fct=SHRT&amp;latlon=lon&amp;disp=A&authKey={인증키입력}
+	                                </a><span><button type="button" class="btn btn_01" style="width: 90px;" onclick="copySampleUrl(event)">URL복사</button></span>
+	                            </p>
+                        
+                    
+                    <!-- API sub sampleUrls end -->
+                    <!-- API sub reqParams -->
+                    
+                        <h5 class="mt40">요청인자</h4>
+                        <div class="Tbl-wrap mt40">
+                            <table class="Tbl">
+                                <caption>데이터 기본 정보</caption>
+                                <colgroup>
+                                    <col width="15%">
+                                    <col width="15%">
+                                    <col width="70%">
+                                </colgroup>
+                                <thead>
+                                <tr>
+                                    <th>인자명</th>
+                                    <th>의미</th>
+                                    <th>설명</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr>
+                                    <td><p class="txt">fct</p></td>
+                                    <td><p class="txt">예보종류</p></td>
+                                    <td><p class="txt">SHRT(단기예보), VSRT(초단기예보, 실황)</p></td>
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">latlon</p></td>
+                                    <td><p class="txt">위도경도 선택	</p></td>
+                                    <td><p class="txt">lon(경도), lat(위도)<br />※ lon 입력시 좌하단에서 우상단으로 이동하며 격자별 위도값 표출<br />     lat 입력시 좌하단에서 우상단으로 이동하며 격자별 경도값 표출</p></td>
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">disp</p></td>
+                                    <td><p class="txt">표출방식</p></td>
+                                    <td><p class="txt">A(ASCII) - 격자점수 + 자료 출력<br />B(BINARY) - 격자개수((short)nx * (short)ny)가 정수로 조회(4byte) + 자료가 실수로 조회<br />자료 순서는 격자자료가 저장된 순서대로 출력됨</p></td>
+                                </tr>
+                                <tr>
+                                    <td><p class="txt">authKey</p></td>
+                                    <td><p class="txt">인증키</p></td>
+                                    <td><p class="txt">발급된 API 인증키</p></td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    
+                    <!-- API sub reqParams end -->
+                    <!-- API sub resParams -->
+                    
+                        <h5 class="mt40">출력결과</h4>
+                        <div class="Tbl-wrap">
+                            <table class="Tbl">
+                                <caption>출력결과</caption>
+                                <colgroup>
+                                    <col width="15%">
+                                    <col width="35%">
+                                    <col width="15%">
+                                    <col width="35%">
+                                </colgroup>
+                                <thead>
+                                <tr>
+                                    <th>변수명</th>
+                                    <th>의미(단위)</th>
+                                    <th>변수명</th>
+                                    <th>의미(단위)</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr>
+                                    <td><p class="txt">lat</p></td>
+                                    <td><p class="txt"> 좌하단에서 우상단으로 이동하며 격자별 위도값 표출</p></td>
+                                    <td ><p class="txt">lon</p></td>
+                                    
+                                    <td ><p class="txt"> 좌하단에서 우상단으로 이동하며 격자별 경도값 표출 </p></td>
+                                    
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    
+                    <!-- API sub resParams end -->
+                
+                 <!--   <h3 th:utext="${apiChildrenData.getApiNm()}">K10. 자동기상관측장비(AWS) 매분자료</h3>
+                    <p class="tit-cont02" th:utext="${apiChildrenData.getApiDesc()}">자동기상관측장비(AWS, Automatic Weather System)는 지상의 기온, 강수, 풍향·속 등을 측정하는 관측장비로 전국 약 600여 지점에 설치되어 있습니다.<br/>
+                        자료 생산주기는 분, 시간, 일, 월,연이며,1997년 이후 자료를 보유(지점마다 상이함) 중입니다.</p> -->
+                    <!-- API sub list apiDescList-->
+                    
+
+
+                    <!-- API sub dscApiList end -->
+                    <!-- API sub AttachFiles -->
+                    
+                    <!-- API sub AttachFiles end -->
+                    <!-- API sub sampleUrls -->
+                    
+                       
+                        
+                    		<!-- 2024.02.06 주경돈 주무관요청 - api표현방식 수정 -->
+							
+							
+							
+																
+								
+								<h4 class="mt40 flex-beetwen">7.2 동네예보 격자데이터 위경도 파일(NetCDF) 다운로드
+							
+							
+	                            
+	                                
+	                                    <span style="margin-left:auto;"><button class="btn btn_00" onClick="onClickLoginBtn()">API 활용신청</button></span>
+	                                
+	                                
+	                            
+	<!--                            <span><button class="btn03" th:if="${apiChildrenData.seqRoute == 5}" th:onclick="onClickGenerateUrl(1118)">URL 발행</button></span>-->
+	                        </h4>
+	                            <p class="flex-beetwen" style="min-height: 50px;">
+	                                <a href="https://apihub.kma.go.kr/api/typ01/url/dfs_latlon_file_down.php?fct=SHRT&amp;authKey=인증키입력" class="url-link" target="_blank">
+	                                    https://apihub.kma.go.kr/api/typ01/url/dfs_latlon_file_down.php?fct=SHRT&authKey={인증키입력}
+	                                </a><span><button type="button" class="btn btn_01" style="width: 90px;" onclick="copySampleUrl(event)">URL복사</button></span>
+	                            </p>
+                        
+                    
+                    <!-- API sub sampleUrls end -->
+                    <!-- API sub reqParams -->
+                    
+                        <h5 class="mt40">요청인자</h4>
+                        <div class="Tbl-wrap mt40">
+                            <table class="Tbl">
+                                <caption>데이터 기본 정보</caption>
+                                <colgroup>
+                                    <col width="15%">
+                                    <col width="15%">
+                                    <col width="70%">
+                                </colgroup>
+                                <thead>
+                                <tr>
+                                    <th>인자명</th>
+                                    <th>의미</th>
+                                    <th>설명</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr>
+                                    <td><p class="txt">fct</p></td>
+                                    <td><p class="txt">예보종류</p></td>
+                                    <td><p class="txt">SHRT(단기예보) VSRT(초단기예보. 실황)</p></td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    
+                    <!-- API sub reqParams end -->
+                    <!-- API sub resParams -->
+                    
+                    <!-- API sub resParams end -->
+                
+                <!-- Api Sub List end -->
+
+                <!-- API sub resParams end -->
+            
+            <!-- Api Sub List end -->
+        </div>
+    </div>
+<!-- Footer -->
+<footer>
+    <div class="footer-wrap">
+        <p class="footer-logo">Copyright(c) KMA. All Rights Reserved. 연락처 : kmadatahub@korea.kr
+            <a class="ml20" href="/personalInfo.do" style="color: black;"><b>개인정보 처리방침</b></a>
+        	<a class="ml20" href="/notice.do?seqNotice=57" style="color: black;"><b style="margin-left: 300px;">출처표기안내</b></a></p>
+        <a href="http://www.kogl.or.kr/info/license.do" target="_blank"><img src="static/images/awp/mark_copy.png"
+                alt="공공누리 공공저작물 자유이용허 - 출처표시"></a>
+    </div>
+</footer>
+<!--// Footer -->
+</body>
+</html>
